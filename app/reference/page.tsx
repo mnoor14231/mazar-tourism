@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Place } from '@/types';
 import { useAuthStore } from '@/lib/store';
@@ -17,7 +17,7 @@ interface FilterState {
   [key: string]: string | string[];
 }
 
-export default function ReferencePage() {
+function ReferencePageContent() {
   const searchParams = useSearchParams();
   const user = useAuthStore((state) => state.user);
   const { places, addPlace, updatePlace, deletePlace } = usePlacesStore();
@@ -281,5 +281,20 @@ export default function ReferencePage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function ReferencePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin w-12 h-12 border-4 border-[#195B4A] border-t-transparent rounded-full mx-auto mb-4"></div>
+          <p className="text-gray-600 font-medium">جاري التحميل...</p>
+        </div>
+      </div>
+    }>
+      <ReferencePageContent />
+    </Suspense>
   );
 }
