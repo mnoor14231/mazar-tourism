@@ -64,6 +64,9 @@ export const metadata: Metadata = {
       'ar-SA': 'https://tourist-muneers-projects-276a49f7.vercel.app',
     },
   },
+  other: {
+    'google-site-verification': 'M9hrLiKbOLSBpCvTm95a_oe3FwfAH4pfVNQ9rkcfG60',
+  },
 }
 
 export default function RootLayout({
@@ -81,9 +84,6 @@ export default function RootLayout({
           integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
           crossOrigin=""
         />
-        
-        {/* Google Site Verification */}
-        <meta name="google-site-verification" content="M9hrLiKbOLSBpCvTm95a_oe3FwfAH4pfVNQ9rkcfG60" />
         
         {/* Fonts */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
