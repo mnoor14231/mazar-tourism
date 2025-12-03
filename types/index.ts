@@ -13,6 +13,7 @@ export interface Place {
   environment: string; // Changed to string to support custom environments
   requiresBooking: boolean;
   reservationPrice?: number; // Price in SAR
+  bookingUrl?: string; // URL for external booking if needed
   bookingsCount: number;
   openingHours: string;
   crowdLevel?: CrowdLevel;
