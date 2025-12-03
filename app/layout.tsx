@@ -85,6 +85,9 @@ export default function RootLayout({
           crossOrigin=""
         />
         
+        {/* Google Site Verification */}
+        <meta name="google-site-verification" content="M9hrLiKbOLSBpCvTm95a_oe3FwfAH4pfVNQ9rkcfG60" />
+        
         {/* Fonts */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
