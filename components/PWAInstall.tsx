@@ -26,10 +26,22 @@ export default function PWAInstallPrompt() {
       return;
     }
 
-    // Detect browser
+    // Track user interaction for faster prompt
+    let hasInteracted = false;
+    const markInteraction = () => {
+      hasInteracted = true;
+    };
+
+    // Listen for user interaction (once per event type)
+    document.addEventListener('click', markInteraction, { once: true });
+    document.addEventListener('scroll', markInteraction, { once: true });
+    document.addEventListener('touchstart', markInteraction, { once: true });
+
+    // Detect browser and device
     const detectBrowser = () => {
       const ua = navigator.userAgent;
       const isIOS = /iPhone|iPad|iPod/.test(ua);
+      const isAndroid = /Android/.test(ua);
       const isSafari = /Safari/.test(ua) && !/Chrome/.test(ua);
       const isChrome = /Chrome/.test(ua) && !/ Edge/.test(ua);
       const isFirefox = /Firefox/.test(ua);
@@ -39,8 +51,8 @@ export default function PWAInstallPrompt() {
         return 'safari-ios';
       } else if (isMac && isSafari) {
         return 'safari-mac';
-      } else if (isChrome) {
-        return 'chrome';
+      } else if (isChrome || isAndroid) {
+        return 'chrome'; // Android Chrome or any Chrome
       } else if (isFirefox) {
         return 'firefox';
       }
@@ -70,10 +82,20 @@ export default function PWAInstallPrompt() {
         }
       }
 
-      // Show after 5 seconds (faster UX)
-      setTimeout(() => {
-        setShowPrompt(true);
-      }, 5000);
+      // Show much faster for mobile devices, even faster after interaction
+      const isMobile = /iPhone|iPad|iPod|Android/.test(navigator.userAgent);
+      const checkAndShow = () => {
+        let delay = hasInteracted 
+          ? (isMobile ? 1000 : 2000) // 1 second for mobile after interaction, 2 for desktop
+          : (isMobile ? 2000 : 3000); // 2 seconds for mobile, 3 for desktop
+        
+        setTimeout(() => {
+          setShowPrompt(true);
+        }, delay);
+      };
+      
+      // Check immediately and show
+      checkAndShow();
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
@@ -92,15 +114,32 @@ export default function PWAInstallPrompt() {
       }
     }
 
-    if (shouldShow && (browser === 'safari-ios' || browser === 'safari-mac' || browser === 'firefox' || browser === 'other')) {
+    if (shouldShow && (detectedBrowser === 'safari-ios' || detectedBrowser === 'safari-mac' || detectedBrowser === 'firefox' || detectedBrowser === 'other')) {
+      // Show much faster for mobile devices, even faster after interaction
+      const isMobile = /iPhone|iPad|iPod|Android/.test(navigator.userAgent);
+      
+      const checkAndShow = () => {
+        const delay = hasInteracted
+          ? (isMobile ? 2000 : 4000) // 2 seconds for mobile after interaction, 4 for desktop
+          : (isMobile ? 3000 : 5000); // 3 seconds for mobile, 5 for desktop
+        
+        setTimeout(() => {
+          setShowPrompt(true);
+          console.log('[PWA] Showing install prompt for', detectedBrowser);
+        }, delay);
+      };
+      
+      // Check interaction after a short delay, then show
       setTimeout(() => {
-        setShowPrompt(true);
-        console.log('[PWA] Showing install prompt for', browser);
-      }, 10000); // Show after 10 seconds for all browsers
+        checkAndShow();
+      }, 500);
     }
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      document.removeEventListener('click', markInteraction);
+      document.removeEventListener('scroll', markInteraction);
+      document.removeEventListener('touchstart', markInteraction);
     };
   }, [browser]);
 
