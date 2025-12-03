@@ -68,10 +68,10 @@ export default function PWAInstallPrompt() {
         }
       }
 
-      // Show after 30 seconds
+      // Show after 15 seconds (reduced for better UX)
       setTimeout(() => {
         setShowPrompt(true);
-      }, 30000);
+      }, 15000);
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
@@ -82,7 +82,7 @@ export default function PWAInstallPrompt() {
       if (!hasSeenPrompt) {
         setTimeout(() => {
           setShowPrompt(true);
-        }, 45000); // Show after 45 seconds
+        }, 20000); // Show after 20 seconds (reduced for better UX)
       }
     }
 
