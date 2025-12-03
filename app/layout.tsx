@@ -8,7 +8,7 @@ import Script from 'next/script'
 export const metadata: Metadata = {
   title: 'مزار | اكتشف المدينة المنورة',
   description: 'منصتك الشاملة لاستكشاف المعالم التاريخية والأماكن الروحانية وتخطيط مسارات ذكية في المدينة المنورة',
-  keywords: ['المدينة المنورة', 'السياحة', 'المسجد النبوي', 'الأماكن الدينية', 'الأماكن التاريخية', 'مزار', 'حجز', 'مسار سياحي', 'Madinah', 'Tourism', 'Saudi Arabia'],
+  keywords: ['مزار', 'المدينة المنورة', 'السياحة', 'المسجد النبوي', 'الأماكن الدينية', 'الأماكن التاريخية', 'حجز', 'مسار سياحي', 'Madinah', 'Tourism', 'Saudi Arabia', 'Mazar'],
   authors: [{ name: 'Mazar Tourism' }],
   creator: 'Mazar',
   publisher: 'Mazar Tourism Platform',
@@ -39,13 +39,13 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'ar_SA',
-    url: 'https://tourist-muneers-projects-276a49f7.vercel.app',
+    url: 'https://tourist-cyan.vercel.app',
     title: 'مزار | اكتشف المدينة المنورة',
     description: 'منصتك الشاملة لاستكشاف المعالم التاريخية والأماكن الروحانية وتخطيط مسارات ذكية في المدينة المنورة',
-    siteName: 'مزار',
+    siteName: 'مزار - Mazar',
     images: [
       {
-        url: '/mazar.png',
+        url: 'https://tourist-cyan.vercel.app/mazar.png',
         width: 1200,
         height: 630,
         alt: 'مزار - استكشاف المدينة المنورة',
@@ -59,9 +59,9 @@ export const metadata: Metadata = {
     images: ['/mazar.png'],
   },
   alternates: {
-    canonical: 'https://tourist-muneers-projects-276a49f7.vercel.app',
+    canonical: 'https://tourist-cyan.vercel.app',
     languages: {
-      'ar-SA': 'https://tourist-muneers-projects-276a49f7.vercel.app',
+      'ar-SA': 'https://tourist-cyan.vercel.app',
     },
   },
   other: {
@@ -98,7 +98,30 @@ export default function RootLayout({
         <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-180x180.png" />
         <link rel="apple-touch-icon" sizes="167x167" href="/icons/icon-167x167.png" />
         
-        {/* Structured Data for Google */}
+        {/* Structured Data for Google - Organization */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'Organization',
+              name: 'مزار',
+              alternateName: 'Mazar',
+              url: 'https://tourist-cyan.vercel.app',
+              logo: 'https://tourist-cyan.vercel.app/mazar.png',
+              description: 'منصتك الشاملة لاستكشاف المعالم التاريخية والأماكن الروحانية وتخطيط مسارات ذكية في المدينة المنورة',
+              sameAs: [],
+              contactPoint: {
+                '@type': 'ContactPoint',
+                contactType: 'Customer Service',
+                areaServed: 'SA',
+                availableLanguage: 'Arabic',
+              },
+            }),
+          }}
+        />
+        
+        {/* Structured Data for Google - Tourist Attraction */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -106,12 +129,19 @@ export default function RootLayout({
               '@context': 'https://schema.org',
               '@type': 'TouristAttraction',
               name: 'مزار - استكشاف المدينة المنورة',
+              alternateName: 'Mazar - Discover Madinah',
               description: 'منصتك الشاملة لاستكشاف المعالم التاريخية والأماكن الروحانية وتخطيط مسارات ذكية في المدينة المنورة',
-              url: 'https://tourist-muneers-projects-276a49f7.vercel.app',
-              image: 'https://tourist-muneers-projects-276a49f7.vercel.app/mazar.png',
+              url: 'https://tourist-cyan.vercel.app',
+              image: 'https://tourist-cyan.vercel.app/mazar.png',
+              brand: {
+                '@type': 'Brand',
+                name: 'مزار',
+                logo: 'https://tourist-cyan.vercel.app/mazar.png',
+              },
               address: {
                 '@type': 'PostalAddress',
                 addressLocality: 'المدينة المنورة',
+                addressRegion: 'المدينة المنورة',
                 addressCountry: 'SA',
               },
               geo: {
@@ -122,7 +152,7 @@ export default function RootLayout({
               inLanguage: 'ar',
               potentialAction: {
                 '@type': 'SearchAction',
-                target: 'https://tourist-muneers-projects-276a49f7.vercel.app/reference?search={search_term}',
+                target: 'https://tourist-cyan.vercel.app/reference?search={search_term}',
                 'query-input': 'required name=search_term',
               },
             }),

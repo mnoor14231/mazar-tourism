@@ -37,19 +37,26 @@ export default function PWAInstallPrompt() {
     document.addEventListener('scroll', markInteraction, { once: true });
     document.addEventListener('touchstart', markInteraction, { once: true });
 
-    // Detect browser and device
+    // Detect browser and device - improved Safari detection
     const detectBrowser = () => {
       const ua = navigator.userAgent;
       const isIOS = /iPhone|iPad|iPod/.test(ua);
       const isAndroid = /Android/.test(ua);
-      const isSafari = /Safari/.test(ua) && !/Chrome/.test(ua);
+      // Better Safari detection - check for Safari but not Chrome/Edge/Firefox
+      const isSafari = /Safari/.test(ua) && !/Chrome|CriOS|FxiOS|EdgiOS/.test(ua);
       const isChrome = /Chrome/.test(ua) && !/ Edge/.test(ua);
       const isFirefox = /Firefox/.test(ua);
       const isMac = /Mac/.test(ua);
 
-      if (isIOS && isSafari) {
-        return 'safari-ios';
-      } else if (isMac && isSafari) {
+      // Prioritize iOS Safari detection
+      if (isIOS) {
+        // On iOS, if it's Safari (not Chrome/Firefox), it's Safari iOS
+        if (isSafari || (!isChrome && !isFirefox)) {
+          return 'safari-ios';
+        }
+      }
+      
+      if (isMac && isSafari) {
         return 'safari-mac';
       } else if (isChrome || isAndroid) {
         return 'chrome'; // Android Chrome or any Chrome
@@ -61,7 +68,7 @@ export default function PWAInstallPrompt() {
 
     const detectedBrowser = detectBrowser();
     setBrowser(detectedBrowser);
-    console.log('[PWA] Browser detected:', detectedBrowser);
+    console.log('[PWA] Browser detected:', detectedBrowser, 'User Agent:', navigator.userAgent);
 
     // Listen for beforeinstallprompt (Chrome, Edge)
     const handleBeforeInstallPrompt = (e: Event) => {
@@ -114,25 +121,37 @@ export default function PWAInstallPrompt() {
       }
     }
 
+    // For Safari and other browsers, show custom prompt
+    // Safari iOS: Show immediately on page load (2-3 seconds), no interaction needed
     if (shouldShow && (detectedBrowser === 'safari-ios' || detectedBrowser === 'safari-mac' || detectedBrowser === 'firefox' || detectedBrowser === 'other')) {
-      // Show much faster for mobile devices, even faster after interaction
       const isMobile = /iPhone|iPad|iPod|Android/.test(navigator.userAgent);
       
-      const checkAndShow = () => {
-        const delay = hasInteracted
-          ? (isMobile ? 2000 : 4000) // 2 seconds for mobile after interaction, 4 for desktop
-          : (isMobile ? 3000 : 5000); // 3 seconds for mobile, 5 for desktop
-        
+      // Safari iOS: Show faster (2-3 seconds) without requiring interaction
+      if (detectedBrowser === 'safari-ios') {
+        const delay = isMobile ? 2000 : 3000; // 2 seconds for iOS, 3 for iPad
+        console.log('[PWA] Scheduling Safari iOS prompt in', delay, 'ms');
         setTimeout(() => {
           setShowPrompt(true);
-          console.log('[PWA] Showing install prompt for', detectedBrowser);
+          console.log('[PWA] Showing install prompt for Safari iOS');
         }, delay);
-      };
-      
-      // Check interaction after a short delay, then show
-      setTimeout(() => {
-        checkAndShow();
-      }, 500);
+      } else {
+        // Safari Mac and others: Show after interaction or with longer delay
+        const checkAndShow = () => {
+          const delay = hasInteracted
+            ? (isMobile ? 2000 : 4000) // 2 seconds for mobile after interaction, 4 for desktop
+            : (isMobile ? 3000 : 5000); // 3 seconds for mobile, 5 for desktop
+          
+          setTimeout(() => {
+            setShowPrompt(true);
+            console.log('[PWA] Showing install prompt for', detectedBrowser);
+          }, delay);
+        };
+        
+        // Check interaction after a short delay, then show
+        setTimeout(() => {
+          checkAndShow();
+        }, 500);
+      }
     }
 
     return () => {
@@ -141,7 +160,7 @@ export default function PWAInstallPrompt() {
       document.removeEventListener('scroll', markInteraction);
       document.removeEventListener('touchstart', markInteraction);
     };
-  }, [browser]);
+  }, []); // Remove browser from dependencies - use detectedBrowser directly
 
   const handleInstallClick = async () => {
     if (!deferredPrompt) {
