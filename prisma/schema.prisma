@@ -1,0 +1,110 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id           String        @id @default(cuid())
+  username     String        @unique
+  password     String
+  role         String        @default("user") // "user" or "manager"
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  reservations Reservation[]
+  savedRoutes  SavedRoute[]
+
+  @@map("users")
+}
+
+model Place {
+  id                String        @id @default(cuid())
+  name              String
+  description       String
+  type              String // "religious", "historical", "entertainment"
+  audience          String // JSON string of array: ["family", "kids", "seniors", "friends"]
+  environment       String // "indoor", "outdoor", "mixed"
+  requiresBooking   Boolean       @default(false)
+  reservationPrice  Float?
+  bookingUrl        String?
+  bookingsCount     Int           @default(0)
+  openingHours      String
+  crowdLevel        String? // "low", "medium", "high"
+  currentEvents     String // JSON string of array
+  images            String // JSON string of array of base64 or URLs
+  latitude          Float
+  longitude         Float
+  customFilters     String? // JSON string of object for custom filters
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  reservations      Reservation[]
+
+  @@map("places")
+}
+
+model FilterCategory {
+  id        String         @id @default(cuid())
+  name      String         @unique // e.g., "type", "audience", "customFilter1"
+  nameAr    String // Arabic name
+  type      String // "single" or "multi"
+  options   FilterOption[]
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+
+  @@map("filter_categories")
+}
+
+model FilterOption {
+  id         String         @id @default(cuid())
+  categoryId String
+  category   FilterCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  value      String // e.g., "religious", "family"
+  label      String // Arabic label
+  order      Int            @default(0)
+  createdAt  DateTime       @default(now())
+
+  @@map("filter_options")
+}
+
+model Reservation {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  placeId         String
+  place           Place    @relation(fields: [placeId], references: [id], onDelete: Cascade)
+  reservationDate DateTime
+  numberOfPeople  Int      @default(1)
+  totalPrice      Float
+  status          String   @default("confirmed") // "confirmed", "cancelled"
+  paymentMethod   String // "apple-pay", "credit-card"
+  qrCode          String // QR code data
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("reservations")
+}
+
+model SavedRoute {
+  id                    String   @id @default(cuid())
+  userId                String
+  user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name                  String // User's name for the route
+  placeIds              String // JSON string of array of place IDs in order
+  startLatitude         Float
+  startLongitude        Float
+  startLabel            String
+  totalDistanceKm       Float
+  estimatedDurationMins Int
+  routeType             String   @default("manual") // "manual" or "ai"
+  aiPreferences         String? // JSON string of stored preferences if AI-generated
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  @@map("saved_routes")
+}

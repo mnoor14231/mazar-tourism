@@ -1,0 +1,547 @@
+'use client';
+
+import { useState, useRef, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { Place } from '@/types';
+import { ChatMessage, ConversationState, UserPreferences } from '@/types/route';
+import { RouteResult } from '@/types/route';
+import { generateSuggestedRoute, MADINAH_CENTER } from '@/lib/routeUtils';
+import { useAuthStore } from '@/lib/store';
+
+interface IbnAlMadinahProps {
+  places: Place[];
+  onRouteGenerated: (route: RouteResult, selectedPlaces: Place[], suggestions: { place: Place; reason: string }[]) => void;
+}
+
+export default function IbnAlMadinah({ places, onRouteGenerated }: IbnAlMadinahProps) {
+  const router = useRouter();
+  const user = useAuthStore((state) => state.user);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [input, setInput] = useState('');
+  const [conversationState, setConversationState] = useState<ConversationState>({
+    step: 'duration',
+    preferences: {},
+  });
+  const [isTyping, setIsTyping] = useState(false);
+  const [showGenerateButton, setShowGenerateButton] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Check for pending conversation after login
+  useEffect(() => {
+    if (user) {
+      const pendingConversation = localStorage.getItem('pendingIbnConversation');
+      if (pendingConversation) {
+        try {
+          const data = JSON.parse(pendingConversation);
+          setMessages(data.messages || []);
+          setConversationState(data.conversationState || { step: 'duration', preferences: {} });
+          localStorage.removeItem('pendingIbnConversation');
+        } catch (e) {
+          console.error('Error parsing pending conversation:', e);
+        }
+      }
+    }
+  }, [user]);
+
+  // Initialize with welcome message (only if logged in)
+  useEffect(() => {
+    if (user && messages.length === 0) {
+      const welcomeMessage: ChatMessage = {
+        id: '1',
+        role: 'assistant',
+        content: 'أهلاً بك! أنا ابن المدينة، أساعدك في بناء مسار مناسب لك في المدينة المنورة. 🕌\n\nأخبرني أولاً، كم مدة إقامتك في المدينة؟ (يوم واحد، يومين، أكثر...)',
+        timestamp: new Date(),
+      };
+      setMessages([welcomeMessage]);
+    }
+  }, [user]);
+
+  // Auto-scroll to bottom
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  const addMessage = (role: 'assistant' | 'user', content: string) => {
+    const newMessage: ChatMessage = {
+      id: Date.now().toString(),
+      role,
+      content,
+      timestamp: new Date(),
+    };
+    setMessages((prev) => [...prev, newMessage]);
+  };
+
+  const simulateTyping = async (callback: () => void) => {
+    setIsTyping(true);
+    await new Promise((resolve) => setTimeout(resolve, 800 + Math.random() * 700));
+    setIsTyping(false);
+    callback();
+  };
+
+  // Helper function to check if text contains any of the keywords
+  const containsAny = (text: string, keywords: string[]): boolean => {
+    return keywords.some(keyword => text.includes(keyword));
+  };
+
+  // Helper function to extract age from text
+  const extractAge = (text: string): number | null => {
+    // Look for numbers
+    const numbers = text.match(/\d+/);
+    if (numbers) {
+      const age = parseInt(numbers[0]);
+      if (age >= 1 && age <= 120) return age;
+    }
+    
+    // Look for age-related words
+    if (containsAny(text, ['عشرين', '20', 'العشرين'])) return 20;
+    if (containsAny(text, ['ثلاثين', '30', 'الثلاثين'])) return 30;
+    if (containsAny(text, ['أربعين', '40', 'الأربعين'])) return 40;
+    if (containsAny(text, ['خمسين', '50', 'الخمسين'])) return 50;
+    if (containsAny(text, ['ستين', '60', 'الستين'])) return 60;
+    
+    return null;
+  };
+
+  // Helper function to detect trip type
+  const detectTripType = (text: string): 'individual' | 'family' | null => {
+    // Individual indicators (must check these first to avoid conflicts)
+    const individualKeywords = [
+      'لحالي', 'لنفسي', 'وحدي', 'واحدي', 'فردي', 'فردية', 'شخصي', 'شخصية',
+      'أنا', 'أنا لوحدي', 'أنا وحدي', 'بمفردي', 'مفردي', 'مفردة',
+      'بدون عائلة', 'بدون أسرة', 'ليس معي أحد', 'لا أحد معي'
+    ];
+    if (containsAny(text, individualKeywords)) {
+      return 'individual';
+    }
+
+    // Family indicators
+    const familyKeywords = [
+      'عائل', 'أسرة', 'اسرة', 'أهل', 'عائلة', 'مع العائلة', 'مع الأسرة',
+      'مع أهلي', 'مع زوجتي', 'مع زوجي', 'مع أولادي', 'مع أطفالي',
+      'أنا وعائلتي', 'أنا وأسرتي', 'أنا وأهلي'
+    ];
+    if (containsAny(text, familyKeywords)) {
+      return 'family';
+    }
+
+    return null;
+  };
+
+  // Helper function to detect kids
+  const detectKids = (text: string): boolean => {
+    const kidsKeywords = [
+      'طفل', 'أطفال', 'صغار', 'أولاد', 'بنات', 'صغير', 'صغيرة',
+      'مع أطفالي', 'مع أولادي', 'مع بناتي', 'مع أبنائي'
+    ];
+    return containsAny(text, kidsKeywords);
+  };
+
+  // Helper function to detect seniors
+  const detectSeniors = (text: string): boolean => {
+    const seniorsKeywords = [
+      'كبار', 'مسن', 'مسنة', 'والد', 'والدة', 'أب', 'أم', 'جد', 'جدة',
+      'والدي', 'والدتي', 'أبي', 'أمي', 'جدي', 'جدتي', 'كبير', 'كبيرة'
+    ];
+    return containsAny(text, seniorsKeywords);
+  };
+
+  // Helper function to detect place types
+  const detectPlaceTypes = (text: string): ('religious' | 'historical' | 'entertainment')[] => {
+    const types: ('religious' | 'historical' | 'entertainment')[] = [];
+    
+    const religiousKeywords = [
+      'دين', 'ديني', 'دينية', 'مسجد', 'مساجد', 'إسلام', 'إسلامي', 'إسلامية',
+      'روحان', 'روحاني', 'روحانية', 'عبادة', 'صلاة', 'زيارة', 'زيارات'
+    ];
+    if (containsAny(text, religiousKeywords)) {
+      types.push('religious');
+    }
+
+    const historicalKeywords = [
+      'تاريخ', 'تاريخي', 'تاريخية', 'متحف', 'متاحف', 'معلم', 'معالم',
+      'تراث', 'تراثي', 'تراثية', 'قديم', 'قديمة', 'أثري', 'أثرية'
+    ];
+    if (containsAny(text, historicalKeywords)) {
+      types.push('historical');
+    }
+
+    const entertainmentKeywords = [
+      'ترفيه', 'ترفيهي', 'ترفيهية', 'حديقة', 'حدائق', 'مول', 'مولات',
+      'تسوق', 'تسوقي', 'لعب', 'ألعاب', 'استجمام', 'راحة', 'استرخاء'
+    ];
+    if (containsAny(text, entertainmentKeywords)) {
+      types.push('entertainment');
+    }
+
+    // If user says "كل" or "جميع" or nothing specific, include all
+    if (containsAny(text, ['كل', 'جميع', 'كلها', 'كلهم', 'الكل']) || types.length === 0) {
+      return ['religious', 'historical', 'entertainment'];
+    }
+
+    return types;
+  };
+
+  // Helper function to detect number of places
+  const detectNumberOfPlaces = (text: string): 1 | 2 | 3 => {
+    if (containsAny(text, ['واحد', '1', 'مكان واحد', 'مكان واحد فقط', 'واحدة'])) {
+      return 1;
+    }
+    if (containsAny(text, ['ثلاث', 'ثلاثة', '3', 'ثلاث أماكن', 'شامل', 'كثير'])) {
+      return 3;
+    }
+    // Default to 2
+    return 2;
+  };
+
+  const processUserInput = (userInput: string) => {
+    const input = userInput.toLowerCase().trim();
+    const newPreferences = { ...conversationState.preferences };
+    let nextStep = conversationState.step;
+    let response = '';
+    let processedCurrentStep = false;
+
+    // Process current step and potentially next steps if user answered multiple questions
+    switch (conversationState.step) {
+      case 'duration':
+        // Extract duration info
+        newPreferences.duration = userInput;
+        nextStep = 'tripType';
+        processedCurrentStep = true;
+        response = 'جميل! 😊\n\nهل الرحلة فردية أم عائلية؟ وهل معكم أطفال أو كبار سن؟';
+        
+        // Check if user also answered trip type in the same message
+        const tripType = detectTripType(input);
+        if (tripType) {
+          newPreferences.tripType = tripType;
+          if (detectKids(input)) newPreferences.hasKids = true;
+          if (detectSeniors(input)) newPreferences.hasSeniors = true;
+          
+          // If they answered trip type, move to age
+          nextStep = 'age';
+          response = `${tripType === 'family' ? 'رائع، رحلة عائلية! 👨‍👩‍👧‍👦' : 'ممتاز، رحلة فردية! 👤'}\n\nكم عمرك؟ (هذا يساعدني في اقتراح الأماكن المناسبة لك)`;
+        }
+        break;
+
+      case 'tripType':
+        // Parse trip type and companions
+        const detectedTripType = detectTripType(input);
+        if (detectedTripType) {
+          newPreferences.tripType = detectedTripType;
+        } else {
+          // Default based on other indicators
+          if (detectKids(input) || detectSeniors(input)) {
+            newPreferences.tripType = 'family';
+          } else {
+            newPreferences.tripType = 'individual';
+          }
+        }
+
+        if (detectKids(input)) {
+          newPreferences.hasKids = true;
+        }
+
+        if (detectSeniors(input)) {
+          newPreferences.hasSeniors = true;
+        }
+
+        nextStep = 'age';
+        processedCurrentStep = true;
+        response = `${newPreferences.tripType === 'family' ? 'رائع، رحلة عائلية! 👨‍👩‍👧‍👦' : 'ممتاز، رحلة فردية! 👤'}\n\nكم عمرك؟ (هذا يساعدني في اقتراح الأماكن المناسبة لك)`;
+        break;
+
+      case 'age':
+        // Extract age
+        const age = extractAge(input);
+        if (age !== null) {
+          newPreferences.age = age;
+        } else {
+          // Store the input anyway, might be useful
+          newPreferences.age = 30; // Default age
+        }
+        nextStep = 'placeTypes';
+        processedCurrentStep = true;
+        response = `ممتاز! 👍\n\nما نوع الأماكن التي تفضل زيارتها؟\n• دينية (المساجد والمواقع الإسلامية)\n• تاريخية (المتاحف والمعالم)\n• ترفيهية (الحدائق والمولات)\n\nيمكنك اختيار أكثر من نوع!`;
+        
+        // Check if user also answered place types
+        const types = detectPlaceTypes(input);
+        if (types.length > 0) {
+          newPreferences.preferredTypes = types;
+          nextStep = 'numberOfPlaces';
+          const typesAr = types.map((t) => {
+            if (t === 'religious') return 'دينية';
+            if (t === 'historical') return 'تاريخية';
+            return 'ترفيهية';
+          }).join(' و ');
+          response = `ممتاز! 👍\n\nاختيار رائع! أماكن ${typesAr} 🌟\n\nكم عدد الأماكن التي تود زيارتها في المسار الواحد؟\n• مكان واحد (تجربة مركزة)\n• مكانين (توازن جيد)\n• ثلاثة أماكن (استكشاف شامل)`;
+        }
+        break;
+
+      case 'placeTypes':
+        // Parse place types
+        const detectedTypes = detectPlaceTypes(input);
+        if (detectedTypes.length > 0) {
+          newPreferences.preferredTypes = detectedTypes;
+        } else {
+          // Default to all if nothing detected
+          newPreferences.preferredTypes = ['religious', 'historical', 'entertainment'];
+        }
+        nextStep = 'numberOfPlaces';
+        processedCurrentStep = true;
+        
+        const typesAr = newPreferences.preferredTypes.map((t) => {
+          if (t === 'religious') return 'دينية';
+          if (t === 'historical') return 'تاريخية';
+          return 'ترفيهية';
+        }).join(' و ');
+        
+        response = `اختيار رائع! أماكن ${typesAr} 🌟\n\nكم عدد الأماكن التي تود زيارتها في المسار الواحد؟\n• مكان واحد (تجربة مركزة)\n• مكانين (توازن جيد)\n• ثلاثة أماكن (استكشاف شامل)`;
+        
+        // Check if user also answered number of places
+        const numPlaces = detectNumberOfPlaces(input);
+        if (numPlaces) {
+          newPreferences.numberOfPlaces = numPlaces;
+          nextStep = 'complete';
+          response = `ممتاز! الآن أصبح لدي صورة واضحة عن تفضيلاتك. 🎯\n\n📋 ملخص تفضيلاتك:\n• المدة: ${newPreferences.duration || 'غير محدد'}\n• نوع الرحلة: ${newPreferences.tripType === 'family' ? 'عائلية' : 'فردية'}${newPreferences.hasKids ? ' (معكم أطفال)' : ''}${newPreferences.hasSeniors ? ' (معكم كبار سن)' : ''}\n• العمر: ${newPreferences.age || 'غير محدد'} سنة\n• نوع الأماكن: ${typesAr}\n• عدد الأماكن: ${numPlaces} ${numPlaces === 1 ? 'مكان' : 'أماكن'}\n\nاضغط على زر "إنشاء مسار مقترح" وسأقوم بتحضير أفضل مسار لك! 🚀`;
+          setShowGenerateButton(true);
+        }
+        break;
+
+      case 'numberOfPlaces':
+        // Parse number of places
+        const detectedNumPlaces = detectNumberOfPlaces(input);
+        newPreferences.numberOfPlaces = detectedNumPlaces;
+        nextStep = 'complete';
+        processedCurrentStep = true;
+        
+        const summaryTypes = newPreferences.preferredTypes?.map((t) => {
+          if (t === 'religious') return 'دينية';
+          if (t === 'historical') return 'تاريخية';
+          return 'ترفيهية';
+        }).join(' و ') || 'متنوعة';
+        
+        response = `ممتاز! الآن أصبح لدي صورة واضحة عن تفضيلاتك. 🎯\n\n📋 ملخص تفضيلاتك:\n• المدة: ${newPreferences.duration || 'غير محدد'}\n• نوع الرحلة: ${newPreferences.tripType === 'family' ? 'عائلية' : 'فردية'}${newPreferences.hasKids ? ' (معكم أطفال)' : ''}${newPreferences.hasSeniors ? ' (معكم كبار سن)' : ''}\n• العمر: ${newPreferences.age || 'غير محدد'} سنة\n• نوع الأماكن: ${summaryTypes}\n• عدد الأماكن: ${detectedNumPlaces} ${detectedNumPlaces === 1 ? 'مكان' : 'أماكن'}\n\nاضغط على زر "إنشاء مسار مقترح" وسأقوم بتحضير أفضل مسار لك! 🚀`;
+        setShowGenerateButton(true);
+        break;
+
+      default:
+        response = 'شكراً لك! يمكنك الآن إنشاء المسار المقترح.';
+    }
+
+    setConversationState({
+      step: nextStep,
+      preferences: newPreferences,
+    });
+
+    return response;
+  };
+
+  const handleSend = () => {
+    if (!user) {
+      // Should not happen if UI is correct, but just in case
+      return;
+    }
+
+    if (!input.trim()) return;
+
+    const userInput = input.trim();
+    setInput('');
+    addMessage('user', userInput);
+
+    simulateTyping(() => {
+      const response = processUserInput(userInput);
+      addMessage('assistant', response);
+    });
+  };
+
+  const handleLogin = () => {
+    // Save current state if any
+    if (messages.length > 0) {
+      localStorage.setItem('pendingIbnConversation', JSON.stringify({
+        messages,
+        conversationState,
+      }));
+    }
+    localStorage.setItem('pendingRouteRedirect', '/routes');
+    router.push('/login');
+  };
+
+  const handleGenerateRoute = () => {
+    // Check if user is logged in
+    if (!user) {
+      // Save conversation state for after login
+      localStorage.setItem('pendingIbnConversation', JSON.stringify({
+        messages,
+        conversationState,
+      }));
+      localStorage.setItem('pendingRouteRedirect', '/routes');
+      router.push('/login');
+      return;
+    }
+
+    const { route, suggestions } = generateSuggestedRoute(
+      places,
+      conversationState.preferences,
+      MADINAH_CENTER.latitude,
+      MADINAH_CENTER.longitude
+    );
+
+    const selectedPlaces = suggestions.map((s) => s.place);
+    onRouteGenerated(route, selectedPlaces, suggestions);
+
+    // Add confirmation message
+    const placesText = suggestions
+      .map((s, i) => `${i + 1}. ${s.place.name} - ${s.reason}`)
+      .join('\n');
+
+    addMessage(
+      'assistant',
+      `🎉 تم إنشاء المسار المقترح لك!\n\nالأماكن المختارة:\n${placesText}\n\nيمكنك رؤية المسار على الخريطة أدناه. أتمنى لك رحلة ممتعة في المدينة المنورة! 🕌✨`
+    );
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  };
+
+  // If user is not logged in, show login prompt
+  if (!user) {
+    return (
+      <div className="flex flex-col h-[600px] bg-white rounded-xl shadow-lg overflow-hidden">
+        {/* Chat Header */}
+        <div className="bg-gradient-to-l from-primary-600 to-primary-700 text-white p-4">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-2xl">
+              🧔
+            </div>
+            <div>
+              <h3 className="font-bold text-lg">ابن المدينة</h3>
+              <p className="text-sm text-primary-100">مساعدك الذكي لاكتشاف المدينة</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Login Prompt */}
+        <div className="flex-1 flex items-center justify-center p-8 bg-gradient-to-br from-gray-50 to-gray-100">
+          <div className="text-center max-w-md">
+            <div className="w-24 h-24 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <span className="text-5xl">🔒</span>
+            </div>
+            <h3 className="text-2xl font-bold text-gray-800 mb-3">
+              تسجيل الدخول مطلوب
+            </h3>
+            <p className="text-gray-600 mb-6 leading-relaxed">
+              للاستفادة من مساعد ابن المدينة الذكي، يرجى تسجيل الدخول أولاً. سيساعدك المساعد في بناء أفضل مسار يناسب تفضيلاتك في المدينة المنورة.
+            </p>
+            <button
+              onClick={handleLogin}
+              className="bg-gradient-to-l from-primary-600 to-primary-700 text-white px-8 py-4 rounded-xl font-bold text-lg hover:from-primary-700 hover:to-primary-800 transition-all flex items-center justify-center gap-2 mx-auto shadow-lg"
+            >
+              <span>🔑</span>
+              <span>تسجيل الدخول</span>
+            </button>
+            <p className="text-sm text-gray-500 mt-4">
+              بعد تسجيل الدخول، ستعود هنا تلقائياً
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col h-[600px] bg-white rounded-xl shadow-lg overflow-hidden">
+      {/* Chat Header */}
+      <div className="bg-gradient-to-l from-primary-600 to-primary-700 text-white p-4">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-2xl">
+            🧔
+          </div>
+          <div>
+            <h3 className="font-bold text-lg">ابن المدينة</h3>
+            <p className="text-sm text-primary-100">مساعدك الذكي لاكتشاف المدينة</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Messages Area */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
+        {messages.map((message) => (
+          <div
+            key={message.id}
+            className={`flex ${message.role === 'user' ? 'justify-start' : 'justify-end'}`}
+          >
+            <div
+              className={`max-w-[85%] rounded-2xl px-4 py-3 ${
+                message.role === 'user'
+                  ? 'bg-primary-600 text-white rounded-br-sm'
+                  : 'bg-white text-gray-800 shadow-sm border border-gray-100 rounded-bl-sm'
+              }`}
+            >
+              {message.role === 'assistant' && (
+                <div className="flex items-center gap-2 mb-1 text-xs text-gray-500">
+                  <span>🧔</span>
+                  <span>ابن المدينة</span>
+                </div>
+              )}
+              <p className="text-sm whitespace-pre-line leading-relaxed">{message.content}</p>
+            </div>
+          </div>
+        ))}
+
+        {/* Typing Indicator */}
+        {isTyping && (
+          <div className="flex justify-end">
+            <div className="bg-white rounded-2xl px-4 py-3 shadow-sm border border-gray-100 rounded-bl-sm">
+              <div className="flex items-center gap-1">
+                <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div ref={messagesEndRef} />
+      </div>
+
+      {/* Generate Button */}
+      {showGenerateButton && (
+        <div className="px-4 py-2 bg-white border-t">
+          <button
+            onClick={handleGenerateRoute}
+            className="w-full bg-gradient-to-l from-green-500 to-green-600 text-white py-3 rounded-xl font-bold text-lg hover:from-green-600 hover:to-green-700 transition-all flex items-center justify-center gap-2"
+          >
+            <span>✨</span>
+            إنشاء مسار مقترح
+          </button>
+        </div>
+      )}
+
+      {/* Input Area */}
+      <div className="p-4 bg-white border-t">
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyPress={handleKeyPress}
+            placeholder="اكتب ردك هنا..."
+            className="flex-1 input-field"
+            disabled={isTyping}
+          />
+          <button
+            onClick={handleSend}
+            disabled={!input.trim() || isTyping}
+            className="bg-primary-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            إرسال
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
