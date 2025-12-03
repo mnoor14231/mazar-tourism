@@ -47,7 +47,9 @@ export default function PWAInstallPrompt() {
       return 'other';
     };
 
-    setBrowser(detectBrowser());
+    const detectedBrowser = detectBrowser();
+    setBrowser(detectedBrowser);
+    console.log('[PWA] Browser detected:', detectedBrowser);
 
     // Listen for beforeinstallprompt (Chrome, Edge)
     const handleBeforeInstallPrompt = (e: Event) => {
@@ -68,22 +70,33 @@ export default function PWAInstallPrompt() {
         }
       }
 
-      // Show after 15 seconds (reduced for better UX)
+      // Show after 5 seconds (faster UX)
       setTimeout(() => {
         setShowPrompt(true);
-      }, 15000);
+      }, 5000);
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
 
-    // For Safari, show custom prompt after some engagement
-    if (browser === 'safari-ios' || browser === 'safari-mac') {
-      const hasSeenPrompt = localStorage.getItem('pwa-prompt-dismissed');
-      if (!hasSeenPrompt) {
-        setTimeout(() => {
-          setShowPrompt(true);
-        }, 20000); // Show after 20 seconds (reduced for better UX)
+    // For Safari and other browsers, show custom prompt after engagement
+    const hasSeenPrompt = localStorage.getItem('pwa-prompt-dismissed');
+    const lastDismissed = localStorage.getItem('pwa-prompt-dismissed-time');
+    
+    // Don't show if dismissed in last 7 days
+    let shouldShow = true;
+    if (hasSeenPrompt && lastDismissed) {
+      const daysSinceDismiss = (Date.now() - parseInt(lastDismissed)) / (1000 * 60 * 60 * 24);
+      if (daysSinceDismiss < 7) {
+        shouldShow = false;
+        console.log('[PWA] Prompt dismissed recently, waiting...');
       }
+    }
+
+    if (shouldShow && (browser === 'safari-ios' || browser === 'safari-mac' || browser === 'firefox' || browser === 'other')) {
+      setTimeout(() => {
+        setShowPrompt(true);
+        console.log('[PWA] Showing install prompt for', browser);
+      }, 10000); // Show after 10 seconds for all browsers
     }
 
     return () => {
