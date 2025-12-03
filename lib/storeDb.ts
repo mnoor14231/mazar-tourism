@@ -16,6 +16,9 @@ interface FiltersState {
   isLoading: boolean;
   fetchFilters: () => Promise<void>;
   addCategory: (category: FilterCategory) => Promise<void>;
+  addOptionToCategory: (categoryId: string, option: { value: string; label: string; color?: string }) => void;
+  removeOptionFromCategory: (categoryId: string, optionId: string) => void;
+  deleteCategory: (categoryId: string) => void;
 }
 
 interface ReservationsState {
@@ -99,6 +102,38 @@ export const useFiltersStore = create<FiltersState>()((set) => ({
     } catch (error) {
       console.error('Error adding category:', error);
     }
+  },
+  addOptionToCategory: (categoryId, option) => {
+    set((state) => ({
+      categories: state.categories.map((cat) =>
+        cat.id === categoryId
+          ? {
+              ...cat,
+              options: [
+                ...cat.options,
+                { id: Date.now().toString(), ...option, order: cat.options.length },
+              ],
+            }
+          : cat
+      ),
+    }));
+  },
+  removeOptionFromCategory: (categoryId, optionId) => {
+    set((state) => ({
+      categories: state.categories.map((cat) =>
+        cat.id === categoryId
+          ? {
+              ...cat,
+              options: cat.options.filter((opt) => opt.id !== optionId),
+            }
+          : cat
+      ),
+    }));
+  },
+  deleteCategory: (categoryId) => {
+    set((state) => ({
+      categories: state.categories.filter((cat) => cat.id !== categoryId),
+    }));
   },
 }));
 
