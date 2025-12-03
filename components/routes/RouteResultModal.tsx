@@ -78,7 +78,7 @@ export default function RouteResultModal({
         startLabel: route.stops[0].label,
         totalDistanceKm: route.totalDistanceKm,
         estimatedDurationMins: route.estimatedDurationMinutes,
-        routeType: suggestions && suggestions.length > 0 ? 'ai' : 'manual',
+        routeType: (suggestions && suggestions.length > 0 ? 'ai' : 'manual') as 'manual' | 'ai',
         aiPreferences: suggestions && suggestions.length > 0 ? {
           tripType: 'family',
           preferredTypes: [],
