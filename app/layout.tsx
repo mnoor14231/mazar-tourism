@@ -8,6 +8,10 @@ import Script from 'next/script'
 export const metadata: Metadata = {
   title: 'مزار | اكتشف المدينة المنورة',
   description: 'منصتك الشاملة لاستكشاف المعالم التاريخية والأماكن الروحانية وتخطيط مسارات ذكية في المدينة المنورة',
+  keywords: ['المدينة المنورة', 'السياحة', 'المسجد النبوي', 'الأماكن الدينية', 'الأماكن التاريخية', 'مزار', 'حجز', 'مسار سياحي', 'Madinah', 'Tourism', 'Saudi Arabia'],
+  authors: [{ name: 'Mazar Tourism' }],
+  creator: 'Mazar',
+  publisher: 'Mazar Tourism Platform',
   manifest: '/manifest.json',
   themeColor: '#195B4A',
   appleWebApp: {
@@ -20,6 +24,45 @@ export const metadata: Metadata = {
     initialScale: 1,
     maximumScale: 1,
     userScalable: false,
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'ar_SA',
+    url: 'https://tourist-muneers-projects-276a49f7.vercel.app',
+    title: 'مزار | اكتشف المدينة المنورة',
+    description: 'منصتك الشاملة لاستكشاف المعالم التاريخية والأماكن الروحانية وتخطيط مسارات ذكية في المدينة المنورة',
+    siteName: 'مزار',
+    images: [
+      {
+        url: '/mazar.png',
+        width: 1200,
+        height: 630,
+        alt: 'مزار - استكشاف المدينة المنورة',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'مزار | اكتشف المدينة المنورة',
+    description: 'منصتك الشاملة لاستكشاف المعالم التاريخية والأماكن الروحانية وتخطيط مسارات ذكية في المدينة المنورة',
+    images: ['/mazar.png'],
+  },
+  alternates: {
+    canonical: 'https://tourist-muneers-projects-276a49f7.vercel.app',
+    languages: {
+      'ar-SA': 'https://tourist-muneers-projects-276a49f7.vercel.app',
+    },
   },
 }
 
@@ -48,6 +91,37 @@ export default function RootLayout({
         <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152x152.png" />
         <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-180x180.png" />
         <link rel="apple-touch-icon" sizes="167x167" href="/icons/icon-167x167.png" />
+        
+        {/* Structured Data for Google */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'TouristAttraction',
+              name: 'مزار - استكشاف المدينة المنورة',
+              description: 'منصتك الشاملة لاستكشاف المعالم التاريخية والأماكن الروحانية وتخطيط مسارات ذكية في المدينة المنورة',
+              url: 'https://tourist-muneers-projects-276a49f7.vercel.app',
+              image: 'https://tourist-muneers-projects-276a49f7.vercel.app/mazar.png',
+              address: {
+                '@type': 'PostalAddress',
+                addressLocality: 'المدينة المنورة',
+                addressCountry: 'SA',
+              },
+              geo: {
+                '@type': 'GeoCoordinates',
+                latitude: 24.4672,
+                longitude: 39.6111,
+              },
+              inLanguage: 'ar',
+              potentialAction: {
+                '@type': 'SearchAction',
+                target: 'https://tourist-muneers-projects-276a49f7.vercel.app/reference?search={search_term}',
+                'query-input': 'required name=search_term',
+              },
+            }),
+          }}
+        />
       </head>
       <body className="antialiased">
         <Providers>

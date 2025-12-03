@@ -1,0 +1,11 @@
+# Robots.txt for Mazar Tourism App
+# Allow all search engines to crawl
+
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /login
+
+# Sitemap location
+Sitemap: https://tourist-muneers-projects-276a49f7.vercel.app/sitemap.xml
+

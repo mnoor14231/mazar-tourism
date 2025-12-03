@@ -191,12 +191,12 @@ export default function PWAInstallPrompt() {
                 <div className="flex items-start gap-3 bg-gray-50 p-3 rounded-lg">
                   <span className="text-2xl flex-shrink-0">2️⃣</span>
                   <p className="text-sm text-gray-700">
-                    مرر للأسفل واختر <strong>"إضافة إلى الشاشة الرئيسية"</strong>
+                    مرر للأسفل واختر <strong>&quot;إضافة إلى الشاشة الرئيسية&quot;</strong>
                   </p>
                 </div>
                 <div className="flex items-start gap-3 bg-gray-50 p-3 rounded-lg">
                   <span className="text-2xl flex-shrink-0">3️⃣</span>
-                  <p className="text-sm text-gray-700">اضغط <strong>"إضافة"</strong></p>
+                  <p className="text-sm text-gray-700">اضغط <strong>&quot;إضافة&quot;</strong></p>
                 </div>
               </div>
             </div>

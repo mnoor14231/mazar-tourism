@@ -625,7 +625,7 @@ export default function PlaceFormModal({
                     <li>افتح خرائط جوجل (Google Maps)</li>
                     <li>ابحث عن المكان أو انقر عليه على الخريطة</li>
                     <li>انسخ الرابط من المتصفح</li>
-                    <li>الصق الرابط هنا واضغط "تحديد الموقع"</li>
+                    <li>الصق الرابط هنا واضغط &quot;تحديد الموقع&quot;</li>
                   </ol>
                 </div>
               </div>
