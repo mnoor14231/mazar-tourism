@@ -375,13 +375,8 @@ button:hover img[alt="Apple Pay"] {
   animation: spin-smooth 1s linear infinite;
 }
 
-/* Prevent page scroll when chat input is focused */
-body:has(#chat-messages-container:focus-within),
-body:has(input[type="text"]:focus) {
-  overflow: hidden !important;
-  position: fixed !important;
-  width: 100% !important;
-}
+/* Prevent page scroll when chat input is focused - WITHOUT hiding sidebar */
+/* We use overscroll-behavior instead of position:fixed to preserve sidebar */
 
 /* Chat container scroll isolation */
 #chat-messages-container {

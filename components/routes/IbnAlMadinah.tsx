@@ -58,33 +58,41 @@ export default function IbnAlMadinah({ places, onRouteGenerated }: IbnAlMadinahP
     }
   }, [user]);
 
-  // Prevent page scroll when input is focused
+  // Prevent page scroll when input is focused (without hiding sidebar)
   useEffect(() => {
     const input = inputRef.current;
     if (!input) return;
 
-    const handleFocus = () => {
-      // Prevent body scroll
-      document.body.style.overflow = 'hidden';
-      document.body.style.position = 'fixed';
-      document.body.style.width = '100%';
+    const handleFocus = (e: FocusEvent) => {
+      // Prevent scroll event propagation only, don't change body position
+      e.stopPropagation();
     };
 
-    const handleBlur = () => {
-      document.body.style.overflow = '';
-      document.body.style.position = '';
-      document.body.style.width = '';
+    const handleBlur = (e: FocusEvent) => {
+      e.stopPropagation();
+    };
+
+    // Prevent wheel events from scrolling page
+    const handleWheel = (e: WheelEvent) => {
+      const chatContainer = document.getElementById('chat-messages-container');
+      if (chatContainer && chatContainer.contains(e.target as Node)) {
+        // Allow scroll within chat container
+        return;
+      }
+      // Prevent page scroll when input is focused
+      if (document.activeElement === input) {
+        e.stopPropagation();
+      }
     };
 
     input.addEventListener('focus', handleFocus);
     input.addEventListener('blur', handleBlur);
+    document.addEventListener('wheel', handleWheel, { passive: false, capture: true });
 
     return () => {
       input.removeEventListener('focus', handleFocus);
       input.removeEventListener('blur', handleBlur);
-      document.body.style.overflow = '';
-      document.body.style.position = '';
-      document.body.style.width = '';
+      document.removeEventListener('wheel', handleWheel, { capture: true });
     };
   }, []);
 
@@ -701,6 +709,8 @@ export default function IbnAlMadinah({ places, onRouteGenerated }: IbnAlMadinahP
         className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50"
         style={{ 
           overscrollBehavior: 'contain', // Prevent scroll chaining to parent
+          overscrollBehaviorY: 'contain',
+          overscrollBehaviorX: 'contain',
           scrollBehavior: 'smooth',
           position: 'relative',
           isolation: 'isolate' // Create new stacking context
@@ -708,11 +718,20 @@ export default function IbnAlMadinah({ places, onRouteGenerated }: IbnAlMadinahP
         onScroll={(e) => {
           // Prevent scroll event from bubbling to parent
           e.stopPropagation();
-          e.nativeEvent.stopImmediatePropagation();
+          if (e.nativeEvent) {
+            e.nativeEvent.stopImmediatePropagation();
+          }
         }}
         onWheel={(e) => {
-          // Prevent wheel event from bubbling to parent
-          e.stopPropagation();
+          // Prevent wheel event from bubbling to parent only if scrolling within container
+          const container = e.currentTarget;
+          const isAtTop = container.scrollTop === 0;
+          const isAtBottom = container.scrollHeight - container.scrollTop === container.clientHeight;
+          
+          // Only stop propagation if we're at boundaries and trying to scroll further
+          if ((isAtTop && e.deltaY < 0) || (isAtBottom && e.deltaY > 0)) {
+            e.stopPropagation();
+          }
         }}
       >
         {messages.map((message) => (
