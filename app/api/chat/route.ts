@@ -159,7 +159,7 @@ CRITICAL RULES:
 
     // Convert messages to Anthropic format
     const anthropicMessages = messages.map((msg: any) => ({
-      role: msg.role === 'assistant' ? 'assistant' : 'user',
+      role: (msg.role === 'assistant' ? 'assistant' : 'user') as 'user' | 'assistant',
       content: msg.content,
     }));
 
