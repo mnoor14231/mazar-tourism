@@ -71,11 +71,11 @@ export default function IbnAlMadinah({ places, onRouteGenerated }: IbnAlMadinahP
     setMessages((prev) => [...prev, newMessage]);
   };
 
-  const simulateTyping = async (callback: () => void) => {
+  const simulateTyping = async (callback: () => void | Promise<void>) => {
     setIsTyping(true);
     await new Promise((resolve) => setTimeout(resolve, 800 + Math.random() * 700));
     setIsTyping(false);
-    callback();
+    await callback();
   };
 
   // Helper function to check if text contains any of the keywords
@@ -335,7 +335,7 @@ export default function IbnAlMadinah({ places, onRouteGenerated }: IbnAlMadinahP
     return response;
   };
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!user) {
       // Should not happen if UI is correct, but just in case
       return;
@@ -347,9 +347,62 @@ export default function IbnAlMadinah({ places, onRouteGenerated }: IbnAlMadinahP
     setInput('');
     addMessage('user', userInput);
 
-    simulateTyping(() => {
-      const response = processUserInput(userInput);
-      addMessage('assistant', response);
+    simulateTyping(async () => {
+      try {
+        // Try AI-powered response first
+        const response = await fetch('/api/chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            messages: messages.concat([
+              { id: Date.now().toString(), role: 'user', content: userInput, timestamp: new Date() }
+            ]),
+            conversationState,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error('API request failed');
+        }
+
+        const result = await response.json();
+
+        if (result.success && result.data) {
+          const aiResponse = result.data;
+          
+          // Update conversation state with AI-extracted preferences
+          const newPreferences = { ...conversationState.preferences };
+          if (aiResponse.preferences) {
+            Object.keys(aiResponse.preferences).forEach((key) => {
+              if (aiResponse.preferences[key] !== null && aiResponse.preferences[key] !== undefined) {
+                newPreferences[key] = aiResponse.preferences[key];
+              }
+            });
+          }
+
+          setConversationState({
+            step: aiResponse.conversation_step || conversationState.step,
+            preferences: newPreferences,
+          });
+
+          // Show generate button if conversation is complete
+          if (aiResponse.next_action === 'generate_route' || aiResponse.conversation_step === 'complete') {
+            setShowGenerateButton(true);
+          }
+
+          // Display AI response
+          addMessage('assistant', aiResponse.response);
+        } else {
+          throw new Error('Invalid AI response');
+        }
+      } catch (error) {
+        console.error('[IbnAlMadinah] AI request failed, falling back to simple logic:', error);
+        // Fallback to simple keyword-based logic
+        const response = processUserInput(userInput);
+        addMessage('assistant', response);
+      }
     });
   };
 
