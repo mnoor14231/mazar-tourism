@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Place } from '@/types';
 import { ChatMessage, ConversationState, UserPreferences } from '@/types/route';
 import { RouteResult } from '@/types/route';
-import { generateSuggestedRoute, MADINAH_CENTER } from '@/lib/routeUtils';
+import { generateSuggestedRoute, MADINAH_CENTER, buildRouteNearestNeighbor } from '@/lib/routeUtils';
 import { useAuthStore } from '@/lib/store';
 
 interface IbnAlMadinahProps {
@@ -24,6 +24,7 @@ export default function IbnAlMadinah({ places, onRouteGenerated }: IbnAlMadinahP
   });
   const [isTyping, setIsTyping] = useState(false);
   const [showGenerateButton, setShowGenerateButton] = useState(false);
+  const [aiSuggestedPlaces, setAiSuggestedPlaces] = useState<{ id: string; name: string; reason: string }[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Check for pending conversation after login
@@ -418,6 +419,12 @@ export default function IbnAlMadinah({ places, onRouteGenerated }: IbnAlMadinahP
             preferences: newPreferences,
           });
 
+          // Save AI-suggested places if provided
+          if (aiResponse.suggested_places && Array.isArray(aiResponse.suggested_places) && aiResponse.suggested_places.length > 0) {
+            setAiSuggestedPlaces(aiResponse.suggested_places);
+            console.log('[IbnAlMadinah] AI suggested places:', aiResponse.suggested_places);
+          }
+
           // Show generate button if conversation is complete
           if (aiResponse.next_action === 'generate_route' || aiResponse.conversation_step === 'complete') {
             setShowGenerateButton(true);
@@ -456,21 +463,81 @@ export default function IbnAlMadinah({ places, onRouteGenerated }: IbnAlMadinahP
       localStorage.setItem('pendingIbnConversation', JSON.stringify({
         messages,
         conversationState,
+        aiSuggestedPlaces,
       }));
       localStorage.setItem('pendingRouteRedirect', '/routes');
       router.push('/login');
       return;
     }
 
-    const { route, suggestions } = generateSuggestedRoute(
-      places,
-      conversationState.preferences,
-      MADINAH_CENTER.latitude,
-      MADINAH_CENTER.longitude
-    );
+    // Use AI-suggested places if available, otherwise use fallback logic
+    let selectedPlaces: Place[] = [];
+    let suggestions: { place: Place; reason: string }[] = [];
 
-    const selectedPlaces = suggestions.map((s) => s.place);
-    onRouteGenerated(route, selectedPlaces, suggestions);
+    if (aiSuggestedPlaces.length > 0) {
+      // Use AI-suggested places
+      console.log('[IbnAlMadinah] Using AI-suggested places:', aiSuggestedPlaces);
+      
+      selectedPlaces = aiSuggestedPlaces
+        .map((aiPlace) => {
+          const place = places.find((p) => p.id === aiPlace.id);
+          if (place) {
+            return { place, reason: aiPlace.reason || 'مقترح من ابن المدينة' };
+          }
+          return null;
+        })
+        .filter((item): item is { place: Place; reason: string } => item !== null)
+        .map((item) => item.place);
+
+      suggestions = aiSuggestedPlaces
+        .map((aiPlace) => {
+          const place = places.find((p) => p.id === aiPlace.id);
+          if (place) {
+            return { place, reason: aiPlace.reason || 'مقترح من ابن المدينة' };
+          }
+          return null;
+        })
+        .filter((item): item is { place: Place; reason: string } => item !== null);
+
+      // If we couldn't find all AI-suggested places, fill with fallback
+      if (selectedPlaces.length < aiSuggestedPlaces.length) {
+        console.warn('[IbnAlMadinah] Some AI-suggested places not found, using fallback');
+        const { route: fallbackRoute, suggestions: fallbackSuggestions } = generateSuggestedRoute(
+          places,
+          conversationState.preferences,
+          MADINAH_CENTER.latitude,
+          MADINAH_CENTER.longitude
+        );
+        // Combine AI suggestions with fallback
+        const existingIds = new Set(selectedPlaces.map((p) => p.id));
+        const additionalPlaces = fallbackSuggestions
+          .filter((s) => !existingIds.has(s.place.id))
+          .slice(0, aiSuggestedPlaces.length - selectedPlaces.length);
+        selectedPlaces.push(...additionalPlaces.map((s) => s.place));
+        suggestions.push(...additionalPlaces);
+      }
+
+      // Generate route with selected places
+      const route = buildRouteNearestNeighbor(
+        MADINAH_CENTER.latitude,
+        MADINAH_CENTER.longitude,
+        'مركز المدينة',
+        selectedPlaces
+      );
+      onRouteGenerated(route, selectedPlaces, suggestions);
+    } else {
+      // Fallback to original logic if no AI suggestions
+      console.log('[IbnAlMadinah] No AI suggestions, using fallback logic');
+      const { route, suggestions: fallbackSuggestions } = generateSuggestedRoute(
+        places,
+        conversationState.preferences,
+        MADINAH_CENTER.latitude,
+        MADINAH_CENTER.longitude
+      );
+      selectedPlaces = fallbackSuggestions.map((s) => s.place);
+      suggestions = fallbackSuggestions;
+      onRouteGenerated(route, selectedPlaces, suggestions);
+    }
 
     // Add confirmation message
     const placesText = suggestions
