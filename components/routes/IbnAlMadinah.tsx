@@ -74,9 +74,15 @@ export default function IbnAlMadinah({ places, onRouteGenerated }: IbnAlMadinahP
 
   const simulateTyping = async (callback: () => void | Promise<void>) => {
     setIsTyping(true);
-    await new Promise((resolve) => setTimeout(resolve, 800 + Math.random() * 700));
-    setIsTyping(false);
-    await callback();
+    try {
+      // Show typing indicator for at least 500ms
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      // Execute callback (API call)
+      await callback();
+    } finally {
+      // Always hide typing indicator after callback completes
+      setIsTyping(false);
+    }
   };
 
   // Helper function to check if text contains any of the keywords
@@ -423,11 +429,16 @@ export default function IbnAlMadinah({ places, onRouteGenerated }: IbnAlMadinahP
           if (aiResponse.suggested_places && Array.isArray(aiResponse.suggested_places) && aiResponse.suggested_places.length > 0) {
             setAiSuggestedPlaces(aiResponse.suggested_places);
             console.log('[IbnAlMadinah] AI suggested places:', aiResponse.suggested_places);
+            // If AI suggested places, show generate button
+            setShowGenerateButton(true);
           }
 
-          // Show generate button if conversation is complete
-          if (aiResponse.next_action === 'generate_route' || aiResponse.conversation_step === 'complete') {
+          // Show generate button if conversation is complete OR if AI suggested places
+          if (aiResponse.next_action === 'generate_route' || 
+              aiResponse.conversation_step === 'complete' ||
+              (aiResponse.suggested_places && aiResponse.suggested_places.length > 0)) {
             setShowGenerateButton(true);
+            console.log('[IbnAlMadinah] Showing generate button. next_action:', aiResponse.next_action, 'step:', aiResponse.conversation_step, 'places:', aiResponse.suggested_places?.length);
           }
 
           // Display AI response
@@ -644,12 +655,12 @@ export default function IbnAlMadinah({ places, onRouteGenerated }: IbnAlMadinahP
 
         {/* Typing Indicator */}
         {isTyping && (
-          <div className="flex justify-end">
+          <div className="flex justify-start animate-fade-in">
             <div className="bg-white rounded-2xl px-4 py-3 shadow-sm border border-gray-100 rounded-bl-sm">
-              <div className="flex items-center gap-1">
-                <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+              <div className="flex items-center gap-1.5">
+                <div className="w-2 h-2 bg-primary-600 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                <div className="w-2 h-2 bg-primary-600 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                <div className="w-2 h-2 bg-primary-600 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
               </div>
             </div>
           </div>

@@ -197,6 +197,10 @@
   ],
   "conversation_step": "duration" | "tripType" | "age" | "placeTypes" | "numberOfPlaces" | "complete",
   "next_action": "continue" | "generate_route",
+  
+**مهم جداً**: عندما تقترح أماكن (suggested_places.length > 0)، يجب أن:
+- conversation_step = "complete"
+- next_action = "generate_route"
   "needs_clarification": boolean,
   "confidence": number between 0 and 1
 }
