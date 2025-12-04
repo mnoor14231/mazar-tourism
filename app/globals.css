@@ -2,24 +2,56 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Import Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=Tajawal:wght@300;400;500;700;800&display=swap');
+/* Import Google Fonts - Visual Identity Guide */
+@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&family=Playfair+Display:wght@400;500;600;700&family=Cairo:wght@300;400;500;600;700;800&display=swap');
+
+/* CSS Variables for Visual Identity */
+:root {
+  --color-foreground: #153D33;
+  --color-background: #FAF8F5;
+  --color-primary: #1A4D40;
+  --color-accent: #B89D6D;
+  --color-secondary: #F5F3EF;
+  --color-muted: #EBE8E1;
+  --color-border: #DDDDDD;
+  --color-green-light: #3D7A6B;
+  --color-button-normal: #195B4A;
+  --color-button-hover: #0B2F29;
+  --color-button-active: #001A15;
+}
 
 @layer base {
   body {
-    @apply bg-gray-50 text-gray-900;
+    @apply text-foreground;
+    background-color: var(--color-background);
     direction: rtl;
-    font-family: 'Cairo', 'Tajawal', 'Segoe UI', Tahoma, sans-serif;
+    font-family: 'Tajawal', 'Cairo', 'Segoe UI', Tahoma, sans-serif;
   }
 
   * {
-    font-family: 'Cairo', 'Tajawal', 'Segoe UI', Tahoma, sans-serif;
+    font-family: 'Tajawal', 'Cairo', 'Segoe UI', Tahoma, sans-serif;
+  }
+  
+  /* English text uses Playfair Display */
+  .font-english {
+    font-family: 'Playfair Display', serif;
   }
 }
 
 @layer components {
+  /* Button Styles from Visual Identity Guide */
   .btn-primary {
-    @apply bg-primary-500 text-white px-6 py-2.5 rounded-lg hover:bg-primary-400 transition-all font-medium shadow-md hover:shadow-lg;
+    background-color: var(--color-button-normal);
+    @apply text-white px-6 py-2.5 rounded-lg font-medium shadow-md transition-all;
+  }
+  
+  .btn-primary:hover {
+    background-color: var(--color-button-hover);
+    @apply shadow-lg;
+  }
+  
+  .btn-primary:active {
+    background-color: var(--color-button-active);
   }
 
   .btn-secondary {
@@ -27,7 +59,13 @@
   }
 
   .btn-accent {
-    @apply bg-accent-400 text-white px-6 py-2.5 rounded-lg hover:bg-accent-500 transition-all font-medium shadow-md hover:shadow-lg;
+    background-color: var(--color-accent);
+    @apply text-white px-6 py-2.5 rounded-lg hover:opacity-90 transition-all font-medium shadow-md;
+  }
+  
+  .btn-success {
+    background-color: var(--color-green-light);
+    @apply text-white px-6 py-2.5 rounded-lg hover:opacity-90 transition-all font-medium shadow-md;
   }
 
   .btn-danger {
@@ -35,19 +73,40 @@
   }
 
   .btn-outline {
-    @apply border-2 border-primary-500 text-primary-600 px-6 py-2.5 rounded-lg hover:bg-primary-50 transition-all font-medium;
+    border: 2px solid var(--color-button-normal);
+    color: var(--color-button-normal);
+    @apply px-6 py-2.5 rounded-lg hover:opacity-80 transition-all font-medium bg-transparent;
+  }
+  
+  .btn-gold-outline {
+    border: 2px solid var(--color-accent);
+    color: var(--color-accent);
+    @apply px-6 py-2.5 rounded-lg hover:opacity-80 transition-all font-medium bg-transparent;
   }
 
   .input-field {
-    @apply w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-primary-400 outline-none transition-all bg-white;
+    border-color: var(--color-border);
+    @apply w-full px-4 py-2.5 border rounded-lg outline-none transition-all bg-white;
+  }
+  
+  .input-field:focus {
+    @apply ring-2 border-primary-500;
+    ring-color: var(--color-button-normal);
   }
 
   .card {
-    @apply bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-all border border-gray-100;
+    @apply bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-all;
+    border: 1px solid var(--color-border);
   }
 
   .card-dark {
     @apply bg-dark-700 rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all border border-dark-600;
+  }
+  
+  .card-secondary {
+    background-color: var(--color-secondary);
+    @apply rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-all;
+    border: 1px solid var(--color-border);
   }
 
   .badge {

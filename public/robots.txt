@@ -4,8 +4,8 @@
 User-agent: *
 Allow: /
 Disallow: /api/
-Disallow: /login
+Disallow: /admin
 
 # Sitemap location
-Sitemap: https://tourist-muneers-projects-276a49f7.vercel.app/sitemap.xml
+Sitemap: https://tourist-cyan.vercel.app/sitemap.xml
 

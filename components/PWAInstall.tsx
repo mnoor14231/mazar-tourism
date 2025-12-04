@@ -196,7 +196,7 @@ export default function PWAInstallPrompt() {
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
       <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full animate-bounce-in overflow-hidden">
         {/* Header */}
-        <div className="bg-gradient-to-r from-[#195B4A] to-[#307C5F] p-6 text-white relative">
+        <div className="p-6 text-white relative" style={{ background: 'linear-gradient(to right, var(--color-button-normal), var(--color-green-light))' }}>
           <button
             onClick={handleDismiss}
             className="absolute top-4 left-4 text-white/80 hover:text-white transition-colors"
@@ -313,22 +313,23 @@ export default function PWAInstallPrompt() {
           )}
 
           {/* Action Buttons */}
-          <div className="mt-6 flex gap-3">
-            {browser === 'chrome' && deferredPrompt && (
-              <button
-                onClick={handleInstallClick}
-                className="flex-1 bg-gradient-to-r from-[#195B4A] to-[#307C5F] hover:from-[#307C5F] hover:to-[#195B4A] text-white py-3 rounded-xl font-bold transition-all hover:scale-105 shadow-lg"
-              >
-                ثبت الآن
-              </button>
-            )}
-            <button
-              onClick={handleDismiss}
-              className={`${browser === 'chrome' && deferredPrompt ? 'flex-1' : 'w-full'} bg-gray-200 hover:bg-gray-300 text-gray-800 py-3 rounded-xl font-medium transition-all`}
-            >
-              {browser === 'safari-ios' || browser === 'safari-mac' ? 'فهمت' : 'لاحقاً'}
-            </button>
-          </div>
+              <div className="mt-6 flex gap-3">
+                {browser === 'chrome' && deferredPrompt && (
+                  <button
+                    onClick={handleInstallClick}
+                    className="btn-primary flex-1 py-3 rounded-xl font-bold transition-all hover:scale-105 shadow-lg"
+                  >
+                    ثبت الآن
+                  </button>
+                )}
+                <button
+                  onClick={handleDismiss}
+                  className={`${browser === 'chrome' && deferredPrompt ? 'flex-1' : 'w-full'} py-3 rounded-xl font-medium transition-all`}
+                  style={{ backgroundColor: 'var(--color-secondary)', color: 'var(--color-foreground)' }}
+                >
+                  {browser === 'safari-ios' || browser === 'safari-mac' ? 'فهمت' : 'لاحقاً'}
+                </button>
+              </div>
         </div>
       </div>
     </div>

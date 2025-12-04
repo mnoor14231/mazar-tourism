@@ -151,7 +151,7 @@ export default function RoutesPage() {
     <>
       <div className="min-h-screen bg-gray-50">
         {/* Header - using exact color #195B4A */}
-        <div className="bg-[#195B4A] shadow-lg">
+        <div className="shadow-lg" style={{ backgroundColor: 'var(--color-button-normal)' }}>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div className="text-center mb-6">
               <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2">
@@ -169,9 +169,13 @@ export default function RoutesPage() {
                   onClick={() => setView('create')}
                   className={`px-6 py-3 rounded-xl font-bold transition-all shadow-lg hover:shadow-xl flex items-center gap-2 ${
                     view === 'create'
-                      ? 'bg-white text-[#195B4A]'
-                      : 'bg-[#195B4A]/50 hover:bg-[#195B4A]/70 text-white border-2 border-white/30'
+                      ? 'bg-white'
+                      : 'text-white border-2 border-white/30'
                   }`}
+                  style={view === 'create' 
+                    ? { color: 'var(--color-button-normal)' } 
+                    : { backgroundColor: 'rgba(25, 91, 74, 0.5)' }
+                  }
                 >
                   <span className="text-xl">➕</span>
                   <span>إنشاء مسار</span>
@@ -180,9 +184,13 @@ export default function RoutesPage() {
                   onClick={() => setView('saved-routes')}
                   className={`px-6 py-3 rounded-xl font-bold transition-all shadow-lg hover:shadow-xl flex items-center gap-2 ${
                     view === 'saved-routes'
-                      ? 'bg-[#9D7D4E] text-white'
-                      : 'bg-[#195B4A]/50 hover:bg-[#195B4A]/70 text-white border-2 border-white/30'
+                      ? 'text-white'
+                      : 'text-white border-2 border-white/30'
                   }`}
+                  style={view === 'saved-routes' 
+                    ? { backgroundColor: 'var(--color-accent)' } 
+                    : { backgroundColor: 'rgba(25, 91, 74, 0.5)' }
+                  }
                 >
                   <span className="text-xl">🗺️</span>
                   <span>رحلاتي</span>

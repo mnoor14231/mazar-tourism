@@ -152,7 +152,7 @@ export default function JourneyTimeline({ places, startLocation, onPlaceClick, o
                     {place.name}
                   </button>
                   <div className="flex items-center gap-1 mt-1">
-                    <span className="text-xs px-2 py-0.5 rounded-full bg-[#195B4A]/10 text-[#195B4A] font-medium">
+                    <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ backgroundColor: 'rgba(25, 91, 74, 0.1)', color: 'var(--color-button-normal)' }}>
                       {getTypeLabel(place.type)}
                     </span>
                   </div>
@@ -237,7 +237,7 @@ export default function JourneyTimeline({ places, startLocation, onPlaceClick, o
               
               {/* Badges */}
               <div className="flex flex-wrap gap-2 mb-4">
-                <span className="px-3 py-1 bg-[#195B4A]/10 text-[#195B4A] rounded-full text-sm font-semibold">
+                <span className="px-3 py-1 rounded-full text-sm font-semibold" style={{ backgroundColor: 'rgba(25, 91, 74, 0.1)', color: 'var(--color-button-normal)' }}>
                   {getTypeLabel(selectedPlace.type)}
                 </span>
                 {selectedPlace.environment && (

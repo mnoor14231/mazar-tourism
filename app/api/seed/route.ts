@@ -19,6 +19,7 @@ export async function POST(request: Request) {
     const manager = await prisma.user.create({
       data: {
         username: 'manager',
+        email: 'manager@mazar.sa',
         password: '123',
         role: 'manager',
       },
@@ -27,6 +28,7 @@ export async function POST(request: Request) {
     const user1 = await prisma.user.create({
       data: {
         username: 'user1',
+        email: 'user1@mazar.sa',
         password: '123',
         role: 'user',
       },

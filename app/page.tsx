@@ -22,7 +22,7 @@ export default function LandingPage() {
       {/* Hero Content */}
       <div className="relative z-10 flex flex-col items-center justify-center min-h-[calc(100vh-64px)] px-6 text-center">
         {/* Badge */}
-        <div className="inline-flex items-center gap-3 bg-[#B69D6D] rounded-full px-6 py-3 mb-8">
+        <div className="inline-flex items-center gap-3 rounded-full px-6 py-3 mb-8" style={{ backgroundColor: 'var(--color-accent)' }}>
           <span className="text-white text-lg">✦</span>
           <span className="text-white font-medium text-lg">منصة استكشاف المدينة المنورة</span>
           <span className="text-white text-lg">✦</span>
@@ -48,7 +48,10 @@ export default function LandingPage() {
           {/* Primary Button - استكشف الأماكن */}
           <Link
             href="/reference"
-            className="group inline-flex items-center justify-center gap-3 bg-[#195B4A] hover:bg-[#307C5F] text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all shadow-lg hover:shadow-xl"
+            className="group inline-flex items-center justify-center gap-3 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all shadow-lg hover:shadow-xl"
+            style={{ backgroundColor: 'var(--color-button-normal)' }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--color-button-hover)'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--color-button-normal)'}
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
@@ -60,9 +63,10 @@ export default function LandingPage() {
           {/* Secondary Button - أنشئ مسارًا ذكيًا */}
           <Link
             href="/routes"
-            className="group inline-flex items-center justify-center gap-3 bg-transparent border-2 border-white/50 hover:border-white hover:bg-white/10 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all backdrop-blur-sm"
+            className="group inline-flex items-center justify-center gap-3 bg-transparent border-2 hover:bg-white/10 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all backdrop-blur-sm"
+            style={{ borderColor: 'var(--color-accent)' }}
           >
-            <span className="text-[#DBC8A8]">✦</span>
+            <span style={{ color: 'var(--color-accent)' }}>✦</span>
             أنشئ مسارًا ذكيًا
           </Link>
         </div>

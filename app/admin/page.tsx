@@ -32,9 +32,9 @@ export default function AdminPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-xl shadow-lg p-8 max-w-md w-full">
-        <h1 className="text-2xl font-bold text-gray-800 mb-6 text-center">
+    <div className="min-h-screen flex items-center justify-center p-4" style={{ backgroundColor: 'var(--color-background)' }}>
+      <div className="card-secondary rounded-xl shadow-lg p-8 max-w-md w-full">
+        <h1 className="text-2xl font-bold mb-6 text-center" style={{ color: 'var(--color-button-normal)' }}>
           لوحة التحكم - إدارة قاعدة البيانات
         </h1>
 
@@ -42,10 +42,8 @@ export default function AdminPage() {
           <button
             onClick={handleSeed}
             disabled={loading}
-            className={`w-full py-3 px-4 rounded-lg font-semibold text-white transition-all ${
-              loading
-                ? 'bg-gray-400 cursor-not-allowed'
-                : 'bg-[#195B4A] hover:bg-[#307C5F] hover:scale-105'
+            className={`btn-primary w-full py-3 px-4 rounded-lg font-semibold ${
+              loading ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105'
             }`}
           >
             {loading ? 'جاري الإنشاء...' : 'إنشاء البيانات (8 أماكن)'}
@@ -63,10 +61,10 @@ export default function AdminPage() {
             </div>
           )}
 
-          <div className="mt-6 pt-6 border-t border-gray-200">
+          <div className="mt-6 pt-6 border-t" style={{ borderColor: 'var(--color-border)' }}>
             <p className="text-sm text-gray-600 text-center">
               بعد النقر على الزر، انتظر قليلاً ثم اذهب إلى صفحة{' '}
-              <a href="/reference" className="text-[#195B4A] hover:underline">
+              <a href="/reference" className="font-medium transition-colors hover:underline" style={{ color: 'var(--color-button-normal)' }}>
                 المرجع
               </a>{' '}
               لرؤية الأماكن

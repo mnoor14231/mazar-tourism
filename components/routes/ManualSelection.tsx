@@ -106,12 +106,6 @@ export default function ManualSelection({ places, onRouteGenerated }: ManualSele
       return;
     }
 
-    // REQUIRED: Must detect location first
-    if (!startLocation) {
-      setError('يجب تحديد موقعك أولاً.');
-      return;
-    }
-
     // Check if user is logged in
     if (!user) {
       // Save selection to localStorage for after login
@@ -127,10 +121,24 @@ export default function ManualSelection({ places, onRouteGenerated }: ManualSele
 
     const selectedPlaces = places.filter((p) => selectedPlaceIds.includes(p.id));
     
-    // Use detected location
-    const startLat = startLocation.lat;
-    const startLon = startLocation.lng;
-    const startLabel = 'موقعك الحالي';
+    // LOCATION IS NOW OPTIONAL
+    // If location is detected, use it. Otherwise, use first selected place as start point
+    let startLat: number;
+    let startLon: number;
+    let startLabel: string;
+    
+    if (startLocation) {
+      // Use detected location
+      startLat = startLocation.lat;
+      startLon = startLocation.lng;
+      startLabel = 'موقعك الحالي';
+    } else {
+      // Use first selected place as start point
+      const firstPlace = selectedPlaces[0];
+      startLat = firstPlace.latitude;
+      startLon = firstPlace.longitude;
+      startLabel = firstPlace.name;
+    }
 
     const route = buildRouteNearestNeighbor(startLat, startLon, startLabel, selectedPlaces);
     onRouteGenerated(route, selectedPlaces);
@@ -217,7 +225,7 @@ export default function ManualSelection({ places, onRouteGenerated }: ManualSele
 
       {/* Build Route Buttons */}
       <div className="sticky bottom-4 space-y-3">
-        {/* Location Detection Button - REQUIRED */}
+        {/* Location Detection Button - OPTIONAL */}
         <button
           onClick={handleGetLocation}
           disabled={locationStatus === 'loading'}
@@ -225,8 +233,8 @@ export default function ManualSelection({ places, onRouteGenerated }: ManualSele
             locationStatus === 'loading'
               ? 'bg-gray-300 text-gray-600 cursor-wait'
               : locationStatus === 'success'
-              ? 'bg-green-500 text-white'
-              : 'bg-primary-100 border-2 border-primary-400 text-primary-700 hover:bg-primary-200'
+              ? 'btn-success'
+              : 'btn-outline'
           }`}
         >
           {locationStatus === 'loading' ? (
@@ -243,33 +251,33 @@ export default function ManualSelection({ places, onRouteGenerated }: ManualSele
             </span>
           ) : (
             <span className="flex items-center justify-center gap-2">
-              📍 تحديد موقعي الحالي (مطلوب)
+              📍 تحديد موقعي الحالي (اختياري)
             </span>
           )}
         </button>
 
-        {/* Create Route Button - Disabled until location detected */}
+        {/* Create Route Button - Enabled when places selected */}
         <button
           onClick={handleBuildRoute}
-          disabled={selectedPlaceIds.length === 0 || !startLocation}
-          className={`w-full py-4 rounded-xl font-bold text-lg shadow-lg transition-all ${
-            selectedPlaceIds.length > 0 && startLocation
-              ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white hover:from-primary-700 hover:to-primary-800 hover:shadow-xl'
-              : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+          disabled={selectedPlaceIds.length === 0}
+          className={`btn-primary w-full py-4 text-lg shadow-lg ${
+            selectedPlaceIds.length > 0
+              ? 'hover:shadow-xl'
+              : 'opacity-50 cursor-not-allowed'
           }`}
         >
-          {!startLocation 
-            ? '🗺️ إنشاء المسار (حدد موقعك أولاً)'
+          {selectedPlaceIds.length === 0
+            ? '🗺️ اختر الأماكن أولاً'
             : `🗺️ إنشاء المسار (${selectedPlaceIds.length} ${selectedPlaceIds.length === 1 ? 'مكان' : 'أماكن'})`
           }
         </button>
 
         {/* Hint */}
         {selectedPlaceIds.length > 0 && (
-          <p className={`text-xs text-center ${startLocation ? 'text-green-600' : 'text-orange-600'}`}>
+          <p className={`text-xs text-center ${startLocation ? 'text-green-600' : 'text-gray-600'}`}>
             {startLocation 
-              ? '✓ جاهز! سيبدأ المسار من موقعك الحالي'
-              : '⚠️ يجب تحديد موقعك أولاً لإنشاء المسار'
+              ? '✓ سيبدأ المسار من موقعك الحالي'
+              : `ⓘ سيبدأ المسار من ${places.find(p => p.id === selectedPlaceIds[0])?.name || 'أول مكان'}`
             }
           </p>
         )}

@@ -4,7 +4,7 @@
   "description": "منصة استكشاف وحجز الأماكن في المدينة المنورة مع مساعد ذكي وخرائط تفاعلية",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#195B4A",
+  "background_color": "#FAF8F5",
   "theme_color": "#195B4A",
   "orientation": "portrait-primary",
   "dir": "rtl",

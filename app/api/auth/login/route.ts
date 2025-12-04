@@ -6,26 +6,18 @@ export async function POST(request: NextRequest) {
     const { username, password } = await request.json();
     
     // Check if user exists
-    let user = await prisma.user.findUnique({
+    const user = await prisma.user.findUnique({
       where: { username },
     });
     
-    // If user doesn't exist, create new account (auto-registration for easy testing)
+    // If user doesn't exist, return error
     if (!user) {
-      console.log(`Creating new user: ${username}`);
-      user = await prisma.user.create({
-        data: {
-          username,
-          password, // In production, hash this with bcrypt
-          role: 'user', // New users are regular users by default
-        },
-      });
-      console.log(`New user created: ${username} with role: ${user.role}`);
-    } else {
-      // If user exists, check password
-      if (password !== user.password) {
-        return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
-      }
+      return NextResponse.json({ error: 'اسم المستخدم أو كلمة المرور غير صحيحة' }, { status: 401 });
+    }
+    
+    // Check password
+    if (password !== user.password) {
+      return NextResponse.json({ error: 'اسم المستخدم أو كلمة المرور غير صحيحة' }, { status: 401 });
     }
     
     // Return user without password
@@ -37,7 +29,7 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('Error logging in:', error);
-    return NextResponse.json({ error: 'Login failed' }, { status: 500 });
+    return NextResponse.json({ error: 'فشل تسجيل الدخول. حاول مرة أخرى' }, { status: 500 });
   }
 }
 

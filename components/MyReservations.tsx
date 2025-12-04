@@ -60,7 +60,7 @@ export default function MyReservations() {
           <span className="text-4xl">📅</span>
           حجوزاتي
         </h2>
-        <div className="bg-[#195B4A] text-white px-4 py-2 rounded-full font-bold text-lg shadow-lg">
+        <div className="text-white px-4 py-2 rounded-full font-bold text-lg shadow-lg" style={{ backgroundColor: 'var(--color-button-normal)' }}>
           {reservations.length}
         </div>
       </div>
@@ -211,7 +211,7 @@ export default function MyReservations() {
                     // In a real app, this would generate and download an actual QR code
                     alert('سيتم تحميل رمز QR قريباً');
                   }}
-                  className="mt-4 bg-[#9D7D4E] hover:bg-[#B69D6D] text-white py-2 px-6 rounded-lg font-medium transition-all hover:scale-105 shadow-md"
+                  className="mt-4 btn-accent py-2 px-6 rounded-lg font-medium transition-all hover:scale-105 shadow-md"
                 >
                   📥 حفظ رمز QR
                 </button>

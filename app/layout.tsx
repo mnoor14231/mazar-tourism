@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   creator: 'Mazar',
   publisher: 'Mazar Tourism Platform',
   manifest: '/manifest.json',
-  themeColor: '#195B4A',
+  themeColor: '#195B4A', // Button Normal from Visual Identity
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',

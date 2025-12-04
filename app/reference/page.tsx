@@ -134,7 +134,7 @@ function ReferencePageContent() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header - using exact colors: #195B4A (green) */}
-      <div className="bg-[#195B4A] shadow-lg">
+      <div className="shadow-lg" style={{ backgroundColor: 'var(--color-button-normal)' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
@@ -196,7 +196,7 @@ function ReferencePageContent() {
         <div className="mb-6">
           <button
             onClick={() => setShowMap(!showMap)}
-            className="bg-[#195B4A] hover:bg-[#307C5F] text-white px-6 py-2.5 rounded-lg font-medium transition-all shadow-md flex items-center gap-2 mx-auto"
+            className="btn-primary px-6 py-2.5 rounded-lg font-medium shadow-md flex items-center gap-2 mx-auto"
           >
             <span>🗺️</span>
             <span>{showMap ? 'إخفاء الخريطة' : 'عرض الأماكن على الخريطة'}</span>

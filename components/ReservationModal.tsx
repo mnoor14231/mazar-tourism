@@ -191,7 +191,7 @@ export default function ReservationModal({
                           onClick={() => setPaymentMethod('credit-card')}
                           className={`p-5 rounded-xl border-2 transition-all hover:scale-105 ${
                             paymentMethod === 'credit-card'
-                              ? 'border-[#195B4A] bg-[#195B4A]/10 shadow-lg'
+                              ? 'shadow-lg'
                               : 'border-gray-200 hover:border-gray-400'
                           }`}
                         >
