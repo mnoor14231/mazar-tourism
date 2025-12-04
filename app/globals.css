@@ -375,20 +375,24 @@ button:hover img[alt="Apple Pay"] {
   animation: spin-smooth 1s linear infinite;
 }
 
-/* Prevent page scroll when chat input is focused or typing */
+/* Prevent page scroll when chat input is focused */
+body:has(#chat-messages-container:focus-within),
+body:has(input[type="text"]:focus) {
+  overflow: hidden !important;
+  position: fixed !important;
+  width: 100% !important;
+}
+
+/* Chat container scroll isolation */
 #chat-messages-container {
-  overscroll-behavior: contain;
+  overscroll-behavior: contain !important;
+  overscroll-behavior-y: contain !important;
+  overscroll-behavior-x: contain !important;
   -webkit-overflow-scrolling: touch;
 }
 
-/* Prevent body scroll when chat is active */
-body.chat-active {
-  overflow: hidden;
-}
-
-/* Ensure chat container scrolls independently */
-#chat-messages-container {
-  scroll-behavior: smooth;
-  overscroll-behavior-y: contain;
+/* Prevent scroll chaining from chat to page */
+#chat-messages-container * {
+  overscroll-behavior: contain;
 }
 
