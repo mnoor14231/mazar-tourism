@@ -5,7 +5,20 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('Starting database seed...');
 
-  // Clear existing data
+  // Check if data already exists
+  const existingPlacesCount = await prisma.place.count();
+  const existingUsersCount = await prisma.user.count();
+  
+  // Only clear data if database is empty (first time seeding)
+  if (existingPlacesCount > 0 || existingUsersCount > 0) {
+    console.log('Database already contains data. Skipping seed to preserve existing data.');
+    console.log(`Found ${existingPlacesCount} places and ${existingUsersCount} users.`);
+    return;
+  }
+
+  console.log('Database is empty. Proceeding with initial seed...');
+
+  // Clear existing data (should be empty anyway, but just in case)
   await prisma.reservation.deleteMany();
   await prisma.filterOption.deleteMany();
   await prisma.filterCategory.deleteMany();
