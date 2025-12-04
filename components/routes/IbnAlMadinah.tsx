@@ -193,6 +193,9 @@ export default function IbnAlMadinah({ places, onRouteGenerated }: IbnAlMadinahP
     return 2;
   };
 
+  // ============================================
+  // FALLBACK: Simple keyword-based logic (used only if AI API fails)
+  // ============================================
   const processUserInput = (userInput: string) => {
     const input = userInput.toLowerCase().trim();
     const newPreferences = { ...conversationState.preferences };
