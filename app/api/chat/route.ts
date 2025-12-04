@@ -229,8 +229,15 @@ CRITICAL RULES:
       const jsonMatch = textContent.text.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         aiResponse = JSON.parse(jsonMatch[0]);
+        console.log('[CHAT API] Parsed AI response:', {
+          hasResponse: !!aiResponse.response,
+          hasPreferences: !!aiResponse.preferences,
+          suggestedPlacesCount: aiResponse.suggested_places?.length || 0,
+          nextAction: aiResponse.next_action,
+        });
       } else {
         // If no JSON found, create structured response from text
+        console.log('[CHAT API] No JSON found in response, using text directly');
         aiResponse = {
           response: textContent.text,
           preferences: {},
@@ -243,6 +250,7 @@ CRITICAL RULES:
       }
     } catch (parseError) {
       console.error('[CHAT API] Failed to parse AI response as JSON:', parseError);
+      console.error('[CHAT API] Raw response:', textContent.text);
       // Return text response wrapped in structure
       aiResponse = {
         response: textContent.text,
