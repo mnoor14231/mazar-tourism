@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Place } from '@/types';
 import { ChatMessage, ConversationState, UserPreferences } from '@/types/route';
@@ -57,10 +57,29 @@ export default function IbnAlMadinah({ places, onRouteGenerated }: IbnAlMadinahP
     }
   }, [user]);
 
-  // Auto-scroll to bottom
+  // Auto-scroll to bottom only when new messages are added (not when typing or user input changes)
+  const prevMessagesLengthRef = useRef(0);
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+    // Only scroll if:
+    // 1. Not currently typing
+    // 2. New message was actually added (length increased)
+    // 3. Messages exist
+    const currentLength = messages.length;
+    const hasNewMessage = currentLength > prevMessagesLengthRef.current;
+    
+    if (!isTyping && hasNewMessage && currentLength > 0) {
+      // Small delay to ensure DOM is updated
+      const scrollTimer = setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+      }, 150);
+      
+      prevMessagesLengthRef.current = currentLength;
+      
+      return () => clearTimeout(scrollTimer);
+    } else if (!hasNewMessage) {
+      prevMessagesLengthRef.current = currentLength;
+    }
+  }, [messages.length, isTyping]); // Only depend on length, not full messages array
 
   const addMessage = (role: 'assistant' | 'user', content: string) => {
     const newMessage: ChatMessage = {
@@ -564,7 +583,9 @@ export default function IbnAlMadinah({ places, onRouteGenerated }: IbnAlMadinahP
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      handleSend();
+      if (!isTyping && input.trim()) {
+        handleSend();
+      }
     }
   };
 
@@ -629,7 +650,10 @@ export default function IbnAlMadinah({ places, onRouteGenerated }: IbnAlMadinahP
       </div>
 
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
+      <div 
+        className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50 scroll-smooth"
+        id="messages-container"
+      >
         {messages.map((message) => (
           <div
             key={message.id}
@@ -653,14 +677,14 @@ export default function IbnAlMadinah({ places, onRouteGenerated }: IbnAlMadinahP
           </div>
         ))}
 
-        {/* Typing Indicator */}
+        {/* Typing Indicator - Always on left side (from bot) */}
         {isTyping && (
           <div className="flex justify-start animate-fade-in">
             <div className="bg-white rounded-2xl px-4 py-3 shadow-sm border border-gray-100 rounded-bl-sm">
               <div className="flex items-center gap-1.5">
-                <div className="w-2 h-2 bg-primary-600 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                <div className="w-2 h-2 bg-primary-600 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                <div className="w-2 h-2 bg-primary-600 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                <div className="w-2 h-2 bg-primary-600 rounded-full animate-bounce" style={{ animationDelay: '0ms', animationDuration: '1.4s' }}></div>
+                <div className="w-2 h-2 bg-primary-600 rounded-full animate-bounce" style={{ animationDelay: '200ms', animationDuration: '1.4s' }}></div>
+                <div className="w-2 h-2 bg-primary-600 rounded-full animate-bounce" style={{ animationDelay: '400ms', animationDuration: '1.4s' }}></div>
               </div>
             </div>
           </div>
@@ -688,11 +712,21 @@ export default function IbnAlMadinah({ places, onRouteGenerated }: IbnAlMadinahP
           <input
             type="text"
             value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyPress={handleKeyPress}
+            onChange={(e) => {
+              setInput(e.target.value);
+              // Don't scroll when user is typing
+            }}
+            onKeyDown={handleKeyPress}
+            onKeyPress={(e) => {
+              // Prevent default scroll behavior on Enter
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+              }
+            }}
             placeholder="اكتب ردك هنا..."
-            className="flex-1 input-field"
+            className="flex-1 input-field focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
             disabled={isTyping}
+            autoFocus={false}
           />
           <button
             onClick={handleSend}
