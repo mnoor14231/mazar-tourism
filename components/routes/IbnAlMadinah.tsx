@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Place } from '@/types';
 import { ChatMessage, ConversationState, UserPreferences } from '@/types/route';
@@ -580,7 +580,7 @@ export default function IbnAlMadinah({ places, onRouteGenerated }: IbnAlMadinahP
     );
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       e.stopPropagation(); // Prevent page scroll
@@ -652,14 +652,20 @@ export default function IbnAlMadinah({ places, onRouteGenerated }: IbnAlMadinahP
 
       {/* Messages Area */}
       <div 
-        className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50 scroll-smooth"
-        id="chat-messages-container"
-        style={{ scrollBehavior: 'smooth' }}
+        className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50"
+        style={{ 
+          overscrollBehavior: 'contain', // Prevent scroll chaining to parent
+          scrollBehavior: 'smooth'
+        }}
+        onScroll={(e) => {
+          // Prevent scroll event from bubbling to parent
+          e.stopPropagation();
+        }}
       >
         {messages.map((message) => (
           <div
             key={message.id}
-            className={`flex ${message.role === 'user' ? 'justify-start' : 'justify-end'}`}
+            className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
           >
             <div
               className={`max-w-[85%] rounded-2xl px-4 py-3 ${
@@ -679,7 +685,7 @@ export default function IbnAlMadinah({ places, onRouteGenerated }: IbnAlMadinahP
           </div>
         ))}
 
-        {/* Typing Indicator - Always on left side (from bot) */}
+        {/* Typing Indicator - Always on left (from bot) */}
         {isTyping && (
           <div className="flex justify-start animate-fade-in">
             <div className="bg-white rounded-2xl px-4 py-3 shadow-sm border border-gray-100 rounded-bl-sm">
@@ -711,48 +717,42 @@ export default function IbnAlMadinah({ places, onRouteGenerated }: IbnAlMadinahP
       {/* Input Area */}
       <div className="p-4 bg-white border-t">
         <div className="flex gap-2">
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => {
-                setInput(e.target.value);
-                // Prevent page scroll when typing
+          <input
+            type="text"
+            value={input}
+            onChange={(e) => {
+              setInput(e.target.value);
+              // Prevent page scroll when typing
+              e.stopPropagation();
+            }}
+            onKeyDown={(e) => {
+              // Prevent page scroll on Enter
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
                 e.stopPropagation();
-              }}
-              onKeyDown={(e) => {
-                // Prevent page scroll on any key press
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  if (!isTyping && input.trim()) {
-                    handleSend();
-                  }
-                } else {
-                  e.stopPropagation();
+                if (!isTyping && input.trim()) {
+                  handleSend();
                 }
-              }}
-              onKeyPress={(e) => {
-                // Prevent default scroll behavior on Enter
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault();
-                  e.stopPropagation();
-                }
-              }}
-              placeholder="اكتب ردك هنا..."
-              className="flex-1 input-field focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-              disabled={isTyping}
-              autoFocus={false}
-              onFocus={(e) => {
-                // Prevent page scroll when input is focused
+              } else {
                 e.stopPropagation();
-                // Prevent body scroll
-                document.body.style.overflow = 'hidden';
-              }}
-              onBlur={() => {
-                // Restore body scroll when input loses focus
-                document.body.style.overflow = '';
-              }}
-            />
+              }
+            }}
+            onKeyPress={(e) => {
+              // Prevent default scroll behavior
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                e.stopPropagation();
+              }
+            }}
+            placeholder="اكتب ردك هنا..."
+            className="flex-1 input-field focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+            disabled={isTyping}
+            autoFocus={false}
+            onFocus={(e) => {
+              // Prevent page scroll when input is focused
+              e.stopPropagation();
+            }}
+          />
           <button
             onClick={handleSend}
             disabled={!input.trim() || isTyping}
