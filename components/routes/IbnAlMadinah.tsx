@@ -279,6 +279,43 @@ export default function IbnAlMadinah({ places, onRouteGenerated }: IbnAlMadinahP
     return 2;
   };
 
+  // Helper function to extract place names from AI response text
+  const extractPlaceNamesFromText = (text: string): string[] => {
+    const placeNames: string[] = [];
+    
+    // Try to find place names mentioned in the text by matching against available places
+    places.forEach((place) => {
+      // Check if place name appears in the text (case-insensitive, partial match)
+      const placeNameLower = place.name.toLowerCase();
+      const textLower = text.toLowerCase();
+      
+      // Check for exact match or partial match (at least 3 characters)
+      if (placeNameLower.length >= 3 && textLower.includes(placeNameLower)) {
+        placeNames.push(place.name);
+      }
+    });
+    
+    return placeNames;
+  };
+
+  // Helper function to find places by name
+  const findPlacesByName = (names: string[]): Place[] => {
+    return places.filter((place) => 
+      names.some((name) => place.name.toLowerCase().includes(name.toLowerCase()) || 
+                         name.toLowerCase().includes(place.name.toLowerCase()))
+    );
+  };
+
+  // Helper function to detect user approval/confirmation
+  const isUserApproval = (text: string): boolean => {
+    const approvalKeywords = [
+      'تم', 'مناسب', 'نفذ', 'خلاص', 'تمام', 'موافق', 'نعم', 'أوافق',
+      'نفذ المسار', 'أنشئ المسار', 'أنشئ', 'نفذ', 'خلاص نفذ',
+      'تمام انشئ', 'تمام انشئ المسار', 'نفذ المستر', 'خلاص نفذ'
+    ];
+    return containsAny(text.toLowerCase(), approvalKeywords);
+  };
+
   // ============================================
   // FALLBACK: Simple keyword-based logic (used only if AI API fails)
   // ============================================
@@ -505,23 +542,68 @@ export default function IbnAlMadinah({ places, onRouteGenerated }: IbnAlMadinahP
           });
 
           // Save AI-suggested places if provided
+          let hasSuggestedPlaces = false;
           if (aiResponse.suggested_places && Array.isArray(aiResponse.suggested_places) && aiResponse.suggested_places.length > 0) {
             setAiSuggestedPlaces(aiResponse.suggested_places);
             console.log('[IbnAlMadinah] AI suggested places:', aiResponse.suggested_places);
-            // If AI suggested places, show generate button
-            setShowGenerateButton(true);
+            hasSuggestedPlaces = true;
+          } else {
+            // Try to extract place names from AI response text
+            const extractedNames = extractPlaceNamesFromText(aiResponse.response);
+            if (extractedNames.length > 0) {
+              console.log('[IbnAlMadinah] Extracted place names from text:', extractedNames);
+              const foundPlaces = findPlacesByName(extractedNames);
+              if (foundPlaces.length > 0) {
+                // Create suggested places structure
+                const suggestedPlaces = foundPlaces.map((place) => ({
+                  id: place.id,
+                  name: place.name,
+                  reason: 'مقترح من ابن المدينة',
+                }));
+                setAiSuggestedPlaces(suggestedPlaces);
+                hasSuggestedPlaces = true;
+                console.log('[IbnAlMadinah] Created suggested places from extracted names:', suggestedPlaces);
+              }
+            }
           }
 
-          // Show generate button if conversation is complete OR if AI suggested places
-          if (aiResponse.next_action === 'generate_route' || 
-              aiResponse.conversation_step === 'complete' ||
-              (aiResponse.suggested_places && aiResponse.suggested_places.length > 0)) {
+          // Show generate button if:
+          // 1. AI explicitly set next_action to generate_route OR
+          // 2. Conversation step is complete OR
+          // 3. AI suggested places (from JSON or extracted from text) OR
+          // 4. User approved and we have preferences + places
+          const shouldShowButton = 
+            aiResponse.next_action === 'generate_route' || 
+            aiResponse.conversation_step === 'complete' ||
+            hasSuggestedPlaces ||
+            (isUserApproval(userInput) && hasSuggestedPlaces);
+
+          if (shouldShowButton) {
             setShowGenerateButton(true);
-            console.log('[IbnAlMadinah] Showing generate button. next_action:', aiResponse.next_action, 'step:', aiResponse.conversation_step, 'places:', aiResponse.suggested_places?.length);
+            console.log('[IbnAlMadinah] Showing generate button. next_action:', aiResponse.next_action, 'step:', aiResponse.conversation_step, 'places:', aiResponse.suggested_places?.length || 'extracted', 'userApproval:', isUserApproval(userInput));
           }
 
           // Display AI response
           addMessage('assistant', aiResponse.response);
+
+          // If user approved but we don't have suggested places yet, try to extract from AI response
+          if (isUserApproval(userInput) && !hasSuggestedPlaces) {
+            // Try to extract place names from the AI response we just received
+            const extractedNames = extractPlaceNamesFromText(aiResponse.response);
+            if (extractedNames.length > 0) {
+              const foundPlaces = findPlacesByName(extractedNames);
+              if (foundPlaces.length > 0) {
+                const suggestedPlaces = foundPlaces.map((place) => ({
+                  id: place.id,
+                  name: place.name,
+                  reason: 'مقترح من ابن المدينة',
+                }));
+                setAiSuggestedPlaces(suggestedPlaces);
+                setShowGenerateButton(true);
+                console.log('[IbnAlMadinah] Extracted places from approval message:', suggestedPlaces);
+              }
+            }
+          }
         } else {
           throw new Error('Invalid AI response');
         }
@@ -570,7 +652,17 @@ export default function IbnAlMadinah({ places, onRouteGenerated }: IbnAlMadinahP
       
       selectedPlaces = aiSuggestedPlaces
         .map((aiPlace) => {
-          const place = places.find((p) => p.id === aiPlace.id);
+          // Try to find by ID first
+          let place = places.find((p) => p.id === aiPlace.id);
+          
+          // If not found by ID, try to find by name
+          if (!place) {
+            place = places.find((p) => 
+              p.name.toLowerCase().includes(aiPlace.name.toLowerCase()) ||
+              aiPlace.name.toLowerCase().includes(p.name.toLowerCase())
+            );
+          }
+          
           if (place) {
             return { place, reason: aiPlace.reason || 'مقترح من ابن المدينة' };
           }
@@ -581,7 +673,17 @@ export default function IbnAlMadinah({ places, onRouteGenerated }: IbnAlMadinahP
 
       suggestions = aiSuggestedPlaces
         .map((aiPlace) => {
-          const place = places.find((p) => p.id === aiPlace.id);
+          // Try to find by ID first
+          let place = places.find((p) => p.id === aiPlace.id);
+          
+          // If not found by ID, try to find by name
+          if (!place) {
+            place = places.find((p) => 
+              p.name.toLowerCase().includes(aiPlace.name.toLowerCase()) ||
+              aiPlace.name.toLowerCase().includes(p.name.toLowerCase())
+            );
+          }
+          
           if (place) {
             return { place, reason: aiPlace.reason || 'مقترح من ابن المدينة' };
           }
