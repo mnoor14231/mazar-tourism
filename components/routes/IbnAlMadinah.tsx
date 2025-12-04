@@ -375,11 +375,39 @@ export default function IbnAlMadinah({ places, onRouteGenerated }: IbnAlMadinahP
           // Update conversation state with AI-extracted preferences
           const newPreferences = { ...conversationState.preferences };
           if (aiResponse.preferences) {
-            Object.keys(aiResponse.preferences).forEach((key) => {
-              if (aiResponse.preferences[key] !== null && aiResponse.preferences[key] !== undefined) {
-                newPreferences[key] = aiResponse.preferences[key];
+            const prefs = aiResponse.preferences as any;
+            // Map AI preferences to our format
+            if (prefs.stay_duration_days !== null && prefs.stay_duration_days !== undefined) {
+              newPreferences.duration = String(prefs.stay_duration_days);
+            }
+            if (prefs.trip_type !== null && prefs.trip_type !== undefined) {
+              newPreferences.tripType = prefs.trip_type === 'عائلية' || prefs.trip_type === 'family' ? 'family' : 
+                                       prefs.trip_type === 'أصدقاء' || prefs.trip_type === 'friends' ? 'individual' : 'individual';
+            }
+            if (prefs.has_kids !== null && prefs.has_kids !== undefined) {
+              newPreferences.hasKids = prefs.has_kids;
+            }
+            if (prefs.has_seniors !== null && prefs.has_seniors !== undefined) {
+              newPreferences.hasSeniors = prefs.has_seniors;
+            }
+            if (prefs.age_group !== null && prefs.age_group !== undefined) {
+              // Extract age from age_group if possible
+              const ageMatch = String(prefs.age_group).match(/\d+/);
+              if (ageMatch) {
+                newPreferences.age = parseInt(ageMatch[0]);
               }
-            });
+            }
+            if (prefs.preferred_place_types && Array.isArray(prefs.preferred_place_types) && prefs.preferred_place_types.length > 0) {
+              newPreferences.preferredTypes = prefs.preferred_place_types.map((type: string) => {
+                if (type.includes('ديني') || type === 'religious') return 'religious';
+                if (type.includes('تاريخي') || type === 'historical') return 'historical';
+                if (type.includes('ترفيهي') || type === 'entertainment') return 'entertainment';
+                return 'religious';
+              }) as ('religious' | 'historical' | 'entertainment')[];
+            }
+            if (prefs.max_places !== null && prefs.max_places !== undefined) {
+              newPreferences.numberOfPlaces = prefs.max_places as 1 | 2 | 3;
+            }
           }
 
           setConversationState({
