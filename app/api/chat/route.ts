@@ -229,8 +229,34 @@ CRITICAL RULES:
       const jsonMatch = textContent.text.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         aiResponse = JSON.parse(jsonMatch[0]);
+        
+        // CRITICAL: Clean response field if it contains JSON
+        if (aiResponse.response && typeof aiResponse.response === 'string') {
+          // Check if response itself contains JSON (Claude sometimes does this)
+          const nestedJsonMatch = aiResponse.response.match(/\{[\s\S]*\}/);
+          if (nestedJsonMatch) {
+            // Response contains JSON - extract only clean text before JSON
+            const textBeforeJson = aiResponse.response.substring(0, aiResponse.response.indexOf('{'));
+            if (textBeforeJson.trim()) {
+              aiResponse.response = textBeforeJson.trim();
+            } else {
+              // If no text before JSON, try to extract from JSON or use fallback
+              try {
+                const nestedData = JSON.parse(nestedJsonMatch[0]);
+                if (nestedData.response && typeof nestedData.response === 'string') {
+                  aiResponse.response = nestedData.response;
+                }
+              } catch {
+                // Can't parse nested JSON, use default
+                aiResponse.response = 'عذراً، حدث خطأ. هل يمكنك إعادة صياغة سؤالك؟';
+              }
+            }
+          }
+        }
+        
         console.log('[CHAT API] Parsed AI response:', {
           hasResponse: !!aiResponse.response,
+          responseLength: aiResponse.response?.length,
           hasPreferences: !!aiResponse.preferences,
           suggestedPlacesCount: aiResponse.suggested_places?.length || 0,
           nextAction: aiResponse.next_action,

@@ -109,7 +109,21 @@ export default function IbnAlMadinah({ places, onRouteGenerated }: IbnAlMadinahP
     if (hasNewMessage && !isTyping && currentLength > 0) {
       // Small delay to ensure DOM is updated
       const scrollTimer = setTimeout(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        const chatContainer = document.getElementById('chat-messages-container');
+        if (chatContainer && messagesEndRef.current) {
+          // Scroll only within chat container, not the page
+          const containerRect = chatContainer.getBoundingClientRect();
+          const elementRect = messagesEndRef.current.getBoundingClientRect();
+          
+          // Check if element is within container
+          if (elementRect.bottom > containerRect.bottom || elementRect.top < containerRect.top) {
+            // Use scrollTo on container instead of scrollIntoView to prevent page scroll
+            chatContainer.scrollTo({
+              top: chatContainer.scrollHeight,
+              behavior: 'smooth'
+            });
+          }
+        }
       }, 100);
       
       prevMessagesLengthRef.current = currentLength;
@@ -140,6 +154,13 @@ export default function IbnAlMadinah({ places, onRouteGenerated }: IbnAlMadinahP
     } finally {
       // Always hide typing indicator after callback completes
       setIsTyping(false);
+      
+      // Auto-focus input after bot responds for better UX
+      setTimeout(() => {
+        if (inputRef.current) {
+          inputRef.current.focus();
+        }
+      }, 100);
     }
   };
 
@@ -795,59 +816,35 @@ export default function IbnAlMadinah({ places, onRouteGenerated }: IbnAlMadinahP
             value={input}
             onChange={(e) => {
               setInput(e.target.value);
-              // Prevent page scroll when typing
-              e.stopPropagation();
-              e.nativeEvent.stopImmediatePropagation();
+              // Allow normal input - don't prevent propagation
             }}
             onKeyDown={(e) => {
-              // Prevent page scroll on Enter
+              // Prevent page scroll on Enter only
               if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
                 e.stopPropagation();
-                e.nativeEvent.stopImmediatePropagation();
                 if (!isTyping && input.trim()) {
                   handleSend();
                 }
                 return false;
-              } else {
-                e.stopPropagation();
-                e.nativeEvent.stopImmediatePropagation();
               }
-            }}
-            onKeyPress={(e) => {
-              // Prevent default scroll behavior
-              if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                e.stopPropagation();
-                e.nativeEvent.stopImmediatePropagation();
-                return false;
-              }
-            }}
-            onKeyUp={(e) => {
-              // Prevent any key events from causing page scroll
-              e.stopPropagation();
+              // Allow other keys to work normally
             }}
             placeholder="اكتب ردك هنا..."
             className="flex-1 input-field focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
             disabled={isTyping}
-            autoFocus={false}
+            autoFocus={true}
             onFocus={(e) => {
               // Prevent page scroll when input is focused
               e.stopPropagation();
-              e.nativeEvent.stopImmediatePropagation();
-              // Prevent body scroll
-              const chatContainer = document.getElementById('chat-messages-container');
-              if (chatContainer) {
-                chatContainer.focus();
-              }
+              // Don't prevent focus on input - allow user to type
             }}
             onBlur={(e) => {
               e.stopPropagation();
             }}
             onClick={(e) => {
-              // Prevent click from causing page scroll
-              e.stopPropagation();
-              e.nativeEvent.stopImmediatePropagation();
+              // Allow click to focus input normally
+              // Only prevent scroll propagation, not the click itself
             }}
           />
           <button
