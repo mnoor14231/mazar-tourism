@@ -636,7 +636,21 @@ export default function IbnAlMadinah({ places, onRouteGenerated }: IbnAlMadinahP
   }
 
   return (
-    <div className="flex flex-col h-[600px] bg-white rounded-xl shadow-lg overflow-hidden">
+    <div 
+      className="flex flex-col h-[600px] bg-white rounded-xl shadow-lg overflow-hidden"
+      style={{
+        position: 'relative',
+        isolation: 'isolate'
+      }}
+      onWheel={(e) => {
+        // Prevent wheel events from bubbling to page
+        e.stopPropagation();
+      }}
+      onScroll={(e) => {
+        // Prevent scroll events from bubbling to page
+        e.stopPropagation();
+      }}
+    >
       {/* Chat Header */}
       <div className="bg-gradient-to-l from-primary-600 to-primary-700 text-white p-4">
         <div className="flex items-center gap-3">
@@ -652,20 +666,28 @@ export default function IbnAlMadinah({ places, onRouteGenerated }: IbnAlMadinahP
 
       {/* Messages Area */}
       <div 
+        id="chat-messages-container"
         className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50"
         style={{ 
           overscrollBehavior: 'contain', // Prevent scroll chaining to parent
-          scrollBehavior: 'smooth'
+          scrollBehavior: 'smooth',
+          position: 'relative',
+          isolation: 'isolate' // Create new stacking context
         }}
         onScroll={(e) => {
           // Prevent scroll event from bubbling to parent
+          e.stopPropagation();
+          e.nativeEvent.stopImmediatePropagation();
+        }}
+        onWheel={(e) => {
+          // Prevent wheel event from bubbling to parent
           e.stopPropagation();
         }}
       >
         {messages.map((message) => (
           <div
             key={message.id}
-            className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+            className={`flex ${message.role === 'user' ? 'justify-start' : 'justify-end'}`}
           >
             <div
               className={`max-w-[85%] rounded-2xl px-4 py-3 ${
@@ -685,9 +707,9 @@ export default function IbnAlMadinah({ places, onRouteGenerated }: IbnAlMadinahP
           </div>
         ))}
 
-        {/* Typing Indicator - Always on left (from bot) */}
+        {/* Typing Indicator - Always on right (from bot) */}
         {isTyping && (
-          <div className="flex justify-start animate-fade-in">
+          <div className="flex justify-end animate-fade-in">
             <div className="bg-white rounded-2xl px-4 py-3 shadow-sm border border-gray-100 rounded-bl-sm">
               <div className="flex items-center gap-1.5">
                 <div className="w-2 h-2 bg-primary-600 rounded-full animate-bounce" style={{ animationDelay: '0ms', animationDuration: '1.4s' }}></div>
@@ -724,17 +746,21 @@ export default function IbnAlMadinah({ places, onRouteGenerated }: IbnAlMadinahP
               setInput(e.target.value);
               // Prevent page scroll when typing
               e.stopPropagation();
+              e.nativeEvent.stopImmediatePropagation();
             }}
             onKeyDown={(e) => {
               // Prevent page scroll on Enter
               if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
                 e.stopPropagation();
+                e.nativeEvent.stopImmediatePropagation();
                 if (!isTyping && input.trim()) {
                   handleSend();
                 }
+                return false;
               } else {
                 e.stopPropagation();
+                e.nativeEvent.stopImmediatePropagation();
               }
             }}
             onKeyPress={(e) => {
@@ -742,7 +768,13 @@ export default function IbnAlMadinah({ places, onRouteGenerated }: IbnAlMadinahP
               if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
                 e.stopPropagation();
+                e.nativeEvent.stopImmediatePropagation();
+                return false;
               }
+            }}
+            onKeyUp={(e) => {
+              // Prevent any key events from causing page scroll
+              e.stopPropagation();
             }}
             placeholder="اكتب ردك هنا..."
             className="flex-1 input-field focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
@@ -751,10 +783,29 @@ export default function IbnAlMadinah({ places, onRouteGenerated }: IbnAlMadinahP
             onFocus={(e) => {
               // Prevent page scroll when input is focused
               e.stopPropagation();
+              e.nativeEvent.stopImmediatePropagation();
+              // Prevent body scroll
+              const chatContainer = document.getElementById('chat-messages-container');
+              if (chatContainer) {
+                chatContainer.focus();
+              }
+            }}
+            onBlur={(e) => {
+              e.stopPropagation();
+            }}
+            onClick={(e) => {
+              // Prevent click from causing page scroll
+              e.stopPropagation();
+              e.nativeEvent.stopImmediatePropagation();
             }}
           />
           <button
-            onClick={handleSend}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              e.nativeEvent.stopImmediatePropagation();
+              handleSend();
+            }}
             disabled={!input.trim() || isTyping}
             className="bg-primary-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
