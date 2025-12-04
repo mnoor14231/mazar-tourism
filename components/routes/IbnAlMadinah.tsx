@@ -26,6 +26,7 @@ export default function IbnAlMadinah({ places, onRouteGenerated }: IbnAlMadinahP
   const [showGenerateButton, setShowGenerateButton] = useState(false);
   const [aiSuggestedPlaces, setAiSuggestedPlaces] = useState<{ id: string; name: string; reason: string }[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   // Check for pending conversation after login
   useEffect(() => {
@@ -64,17 +65,9 @@ export default function IbnAlMadinah({ places, onRouteGenerated }: IbnAlMadinahP
 
     const handleFocus = () => {
       // Prevent body scroll
-      const originalOverflow = document.body.style.overflow;
-      const originalPosition = document.body.style.position;
       document.body.style.overflow = 'hidden';
       document.body.style.position = 'fixed';
       document.body.style.width = '100%';
-      
-      return () => {
-        document.body.style.overflow = originalOverflow;
-        document.body.style.position = originalPosition;
-        document.body.style.width = '';
-      };
     };
 
     const handleBlur = () => {
