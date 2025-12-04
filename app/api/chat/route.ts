@@ -79,9 +79,18 @@ export async function POST(request: NextRequest) {
 
     // Check API key
     if (!process.env.ANTHROPIC_API_KEY) {
-      console.error('ANTHROPIC_API_KEY not configured');
+      console.error('[CHAT API] ANTHROPIC_API_KEY not configured');
       return NextResponse.json(
         { error: 'AI service not configured', fallbackRequired: true },
+        { status: 500 }
+      );
+    }
+    
+    // Validate API key format (should start with sk-ant-)
+    if (!process.env.ANTHROPIC_API_KEY.startsWith('sk-ant-')) {
+      console.error('[CHAT API] Invalid API key format');
+      return NextResponse.json(
+        { error: 'Invalid API key format', fallbackRequired: true },
         { status: 500 }
       );
     }
@@ -165,12 +174,46 @@ CRITICAL RULES:
 
     // Call Anthropic API
     console.log('[CHAT API] Calling Anthropic API...');
-    const response = await anthropic.messages.create({
-      model: 'claude-3-5-sonnet-20240620', // Changed to older stable version
-      max_tokens: 2000,
-      system: systemPrompt,
-      messages: anthropicMessages,
-    });
+    console.log('[CHAT API] API Key exists:', !!process.env.ANTHROPIC_API_KEY);
+    console.log('[CHAT API] Messages count:', anthropicMessages.length);
+    
+    // Try different models in order of preference
+    const modelsToTry = [
+      'claude-3-5-sonnet-20241022',
+      'claude-3-5-sonnet-20240620',
+      'claude-3-sonnet-20240229',
+      'claude-3-opus-20240229',
+      'claude-3-haiku-20240307',
+    ];
+
+    let response;
+    let lastError;
+    
+    for (const model of modelsToTry) {
+      try {
+        console.log(`[CHAT API] Trying model: ${model}`);
+        response = await anthropic.messages.create({
+          model: model,
+          max_tokens: 2000,
+          system: systemPrompt,
+          messages: anthropicMessages,
+        });
+        console.log(`[CHAT API] Success with model: ${model}`);
+        break; // Success, exit loop
+      } catch (error: any) {
+        console.error(`[CHAT API] Failed with model ${model}:`, error.message);
+        lastError = error;
+        // If it's not a model not found error, throw immediately
+        if (error.status !== 404 && error.error?.type !== 'not_found_error') {
+          throw error;
+        }
+        // Continue to next model
+      }
+    }
+    
+    if (!response) {
+      throw new Error(`All models failed. Last error: ${lastError?.message || 'Unknown error'}`);
+    }
 
     console.log('[CHAT API] Received response from Anthropic');
 
