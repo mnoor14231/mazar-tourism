@@ -375,3 +375,20 @@ button:hover img[alt="Apple Pay"] {
   animation: spin-smooth 1s linear infinite;
 }
 
+/* Prevent page scroll when chat input is focused or typing */
+#chat-messages-container {
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Prevent body scroll when chat is active */
+body.chat-active {
+  overflow: hidden;
+}
+
+/* Ensure chat container scrolls independently */
+#chat-messages-container {
+  scroll-behavior: smooth;
+  overscroll-behavior-y: contain;
+}
+

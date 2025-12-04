@@ -57,26 +57,26 @@ export default function IbnAlMadinah({ places, onRouteGenerated }: IbnAlMadinahP
     }
   }, [user]);
 
-  // Auto-scroll to bottom only when new messages are added (not when typing or user input changes)
+  // Auto-scroll to bottom only when new messages are added (not on every render)
   const prevMessagesLengthRef = useRef(0);
   useEffect(() => {
-    // Only scroll if:
-    // 1. Not currently typing
-    // 2. New message was actually added (length increased)
-    // 3. Messages exist
     const currentLength = messages.length;
     const hasNewMessage = currentLength > prevMessagesLengthRef.current;
     
-    if (!isTyping && hasNewMessage && currentLength > 0) {
+    // Only scroll if:
+    // 1. New message was actually added (length increased)
+    // 2. Not currently typing (to avoid scroll during typing indicator)
+    // 3. Messages exist
+    if (hasNewMessage && !isTyping && currentLength > 0) {
       // Small delay to ensure DOM is updated
       const scrollTimer = setTimeout(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
-      }, 150);
+      }, 100);
       
       prevMessagesLengthRef.current = currentLength;
       
       return () => clearTimeout(scrollTimer);
-    } else if (!hasNewMessage) {
+    } else {
       prevMessagesLengthRef.current = currentLength;
     }
   }, [messages.length, isTyping]); // Only depend on length, not full messages array
@@ -583,6 +583,7 @@ export default function IbnAlMadinah({ places, onRouteGenerated }: IbnAlMadinahP
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
+      e.stopPropagation(); // Prevent page scroll
       if (!isTyping && input.trim()) {
         handleSend();
       }
@@ -652,7 +653,8 @@ export default function IbnAlMadinah({ places, onRouteGenerated }: IbnAlMadinahP
       {/* Messages Area */}
       <div 
         className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50 scroll-smooth"
-        id="messages-container"
+        id="chat-messages-container"
+        style={{ scrollBehavior: 'smooth' }}
       >
         {messages.map((message) => (
           <div
@@ -709,25 +711,48 @@ export default function IbnAlMadinah({ places, onRouteGenerated }: IbnAlMadinahP
       {/* Input Area */}
       <div className="p-4 bg-white border-t">
         <div className="flex gap-2">
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => {
-              setInput(e.target.value);
-              // Don't scroll when user is typing
-            }}
-            onKeyDown={handleKeyPress}
-            onKeyPress={(e) => {
-              // Prevent default scroll behavior on Enter
-              if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-              }
-            }}
-            placeholder="اكتب ردك هنا..."
-            className="flex-1 input-field focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-            disabled={isTyping}
-            autoFocus={false}
-          />
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => {
+                setInput(e.target.value);
+                // Prevent page scroll when typing
+                e.stopPropagation();
+              }}
+              onKeyDown={(e) => {
+                // Prevent page scroll on any key press
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  if (!isTyping && input.trim()) {
+                    handleSend();
+                  }
+                } else {
+                  e.stopPropagation();
+                }
+              }}
+              onKeyPress={(e) => {
+                // Prevent default scroll behavior on Enter
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  e.stopPropagation();
+                }
+              }}
+              placeholder="اكتب ردك هنا..."
+              className="flex-1 input-field focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              disabled={isTyping}
+              autoFocus={false}
+              onFocus={(e) => {
+                // Prevent page scroll when input is focused
+                e.stopPropagation();
+                // Prevent body scroll
+                document.body.style.overflow = 'hidden';
+              }}
+              onBlur={() => {
+                // Restore body scroll when input loses focus
+                document.body.style.overflow = '';
+              }}
+            />
           <button
             onClick={handleSend}
             disabled={!input.trim() || isTyping}
