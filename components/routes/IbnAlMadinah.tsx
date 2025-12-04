@@ -57,6 +57,44 @@ export default function IbnAlMadinah({ places, onRouteGenerated }: IbnAlMadinahP
     }
   }, [user]);
 
+  // Prevent page scroll when input is focused
+  useEffect(() => {
+    const input = inputRef.current;
+    if (!input) return;
+
+    const handleFocus = () => {
+      // Prevent body scroll
+      const originalOverflow = document.body.style.overflow;
+      const originalPosition = document.body.style.position;
+      document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.width = '100%';
+      
+      return () => {
+        document.body.style.overflow = originalOverflow;
+        document.body.style.position = originalPosition;
+        document.body.style.width = '';
+      };
+    };
+
+    const handleBlur = () => {
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+    };
+
+    input.addEventListener('focus', handleFocus);
+    input.addEventListener('blur', handleBlur);
+
+    return () => {
+      input.removeEventListener('focus', handleFocus);
+      input.removeEventListener('blur', handleBlur);
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+    };
+  }, []);
+
   // Auto-scroll to bottom only when new messages are added (not on every render)
   const prevMessagesLengthRef = useRef(0);
   useEffect(() => {
@@ -740,6 +778,7 @@ export default function IbnAlMadinah({ places, onRouteGenerated }: IbnAlMadinahP
       <div className="p-4 bg-white border-t">
         <div className="flex gap-2">
           <input
+            ref={inputRef}
             type="text"
             value={input}
             onChange={(e) => {
