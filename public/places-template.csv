@@ -1,0 +1,4 @@
+name,description,type,audience,environment,requiresBooking,reservationPrice,bookingUrl,bookingsCount,openingHours,crowdLevel,currentEvents,images,latitude,longitude,customFilters
+المسجد النبوي,أحد أعظم المساجد في الإسلام، يضم قبر النبي محمد ﷺ وصاحبيه,"[""family"",""seniors"",""friends""]",religious,mixed,false,,,5000000,24 ساعة,high,"[""صلاة التراويح"",""دروس دينية""]","[""https://images.unsplash.com/photo-1591604021695-0c69b7c05981?w=800""]",24.4672,39.6111,
+مسجد قباء,أول مسجد بني في الإسلام، ويُستحب زيارته والصلاة فيه,"[""family"",""seniors""]",religious,outdoor,false,,,2000000,24 ساعة,medium,"[""درس بعد الفجر""]","[""https://images.unsplash.com/photo-1564769610854-034c0e4f41f5?w=800""]",24.4393,39.6206,
+
