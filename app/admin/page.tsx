@@ -129,14 +129,14 @@ export default function AdminPage() {
                 className="w-full py-2 px-4 rounded-lg border-2 font-medium transition-colors hover:bg-gray-50"
                 style={{ borderColor: 'var(--color-border)', color: 'var(--color-text)' }}
               >
-                📥 تحميل قالب CSV
+                📥 تحميل قالب CSV (يمكن فتحه في Excel)
               </button>
 
               <div className="relative">
                 <input
                   ref={fileInputRef}
                   type="file"
-                  accept=".csv"
+                  accept=".csv,.xlsx,.xls"
                   onChange={handleBulkImport}
                   disabled={bulkLoading}
                   className="hidden"
@@ -150,12 +150,12 @@ export default function AdminPage() {
                       : 'btn-primary hover:scale-105'
                   }`}
                 >
-                  {bulkLoading ? 'جاري الاستيراد...' : '📤 رفع ملف CSV واستيراد الأماكن'}
+                  {bulkLoading ? 'جاري الاستيراد...' : '📤 رفع ملف Excel أو CSV واستيراد الأماكن'}
                 </label>
               </div>
 
               <p className="text-sm text-gray-600 text-center">
-                يمكنك رفع ملف CSV يحتوي على عدة أماكن دفعة واحدة. 
+                يمكنك رفع ملف Excel (.xlsx, .xls) أو CSV يحتوي على عدة أماكن دفعة واحدة. 
                 <br />
                 قم بتحميل القالب أولاً لمعرفة التنسيق المطلوب.
               </p>

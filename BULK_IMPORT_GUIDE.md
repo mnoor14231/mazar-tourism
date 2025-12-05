@@ -11,17 +11,18 @@ The bulk import feature allows you to add many places to the database at once by
 1. Go to `/admin` in your browser
 2. You'll see two sections:
    - **إنشاء بيانات أولية** (Create Initial Data) - for seeding default data
-   - **استيراد جماعي للأماكن** (Bulk Import Places) - for importing from CSV
+   - **استيراد جماعي للأماكن** (Bulk Import Places) - for importing from Excel or CSV
 
-### Step 2: Download CSV Template
+### Step 2: Download Template
 
 1. Click the **"📥 تحميل قالب CSV"** (Download CSV Template) button
 2. This downloads `places-template.csv` with example data
 3. Open it in Excel, Google Sheets, or any spreadsheet application
+4. **You can work directly in Excel and save as .xlsx or .xls - both formats are supported!**
 
 ### Step 3: Prepare Your Data
 
-Fill in the CSV file with your places. Required columns:
+Fill in the Excel or CSV file with your places. Required columns:
 
 - **name** (required) - Place name in Arabic
 - **description** (required) - Place description
@@ -43,12 +44,16 @@ Optional columns:
 - **images** - JSON array like `["url1","url2"]` or comma-separated URLs
 - **customFilters** - JSON object or leave empty
 
-### Step 4: Upload CSV File
+### Step 4: Upload File
 
-1. Click **"📤 رفع ملف CSV واستيراد الأماكن"** (Upload CSV File and Import Places)
-2. Select your CSV file
+1. Click **"📤 رفع ملف Excel أو CSV واستيراد الأماكن"** (Upload Excel or CSV File and Import Places)
+2. Select your Excel (.xlsx, .xls) or CSV file
 3. Wait for the import to complete
 4. You'll see a success message with the number of places imported
+
+**Supported File Formats:**
+- Excel: `.xlsx`, `.xls`
+- CSV: `.csv`
 
 ### Step 5: Verify
 

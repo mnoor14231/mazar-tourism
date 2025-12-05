@@ -1,8 +1,53 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { appPlaceToDbPlace } from '@/lib/dbHelpers';
+import * as XLSX from 'xlsx';
 
-// POST bulk import places from CSV
+// Helper function to parse Excel file
+function parseExcelFile(buffer: ArrayBuffer): { headers: string[], rows: any[] } {
+  const workbook = XLSX.read(buffer, { type: 'buffer' });
+  const sheetName = workbook.SheetNames[0];
+  const worksheet = workbook.Sheets[sheetName];
+  const data = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '' }) as any[][];
+  
+  if (data.length < 2) {
+    throw new Error('Excel file must have at least a header and one data row');
+  }
+
+  const headers = data[0].map((h: any) => String(h).trim().toLowerCase());
+  const rows = data.slice(1).map(row => {
+    const obj: any = {};
+    headers.forEach((header, index) => {
+      obj[header] = row[index] ? String(row[index]).trim() : '';
+    });
+    return obj;
+  });
+
+  return { headers, rows };
+}
+
+// Helper function to parse CSV file
+function parseCSVFile(text: string): { headers: string[], rows: any[] } {
+  const lines = text.split('\n').filter(line => line.trim());
+  
+  if (lines.length < 2) {
+    throw new Error('CSV file must have at least a header and one data row');
+  }
+
+  const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, '').toLowerCase());
+  const rows = lines.slice(1).map(line => {
+    const values = line.split(',').map(v => v.trim().replace(/^"|"$/g, ''));
+    const obj: any = {};
+    headers.forEach((header, index) => {
+      obj[header] = values[index] || '';
+    });
+    return obj;
+  });
+
+  return { headers, rows };
+}
+
+// POST bulk import places from CSV or Excel
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
@@ -12,18 +57,39 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 });
     }
 
-    // Read file content
-    const text = await file.text();
-    const lines = text.split('\n').filter(line => line.trim());
+    const fileName = file.name.toLowerCase();
+    const isExcel = fileName.endsWith('.xlsx') || fileName.endsWith('.xls');
+    const isCSV = fileName.endsWith('.csv');
 
-    if (lines.length < 2) {
-      return NextResponse.json({ error: 'CSV file must have at least a header and one data row' }, { status: 400 });
+    if (!isExcel && !isCSV) {
+      return NextResponse.json({ 
+        error: 'File must be CSV (.csv) or Excel (.xlsx, .xls) format' 
+      }, { status: 400 });
     }
 
-    // Parse CSV header
-    const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+    // Parse file based on type
+    let headers: string[];
+    let rows: any[];
+
+    try {
+      if (isExcel) {
+        const buffer = await file.arrayBuffer();
+        const parsed = parseExcelFile(buffer);
+        headers = parsed.headers;
+        rows = parsed.rows;
+      } else {
+        const text = await file.text();
+        const parsed = parseCSVFile(text);
+        headers = parsed.headers;
+        rows = parsed.rows;
+      }
+    } catch (parseError: any) {
+      return NextResponse.json({ 
+        error: `Failed to parse file: ${parseError.message}` 
+      }, { status: 400 });
+    }
     
-    // Expected CSV columns
+    // Expected columns (case-insensitive)
     const requiredFields = ['name', 'description', 'type', 'latitude', 'longitude'];
     const missingFields = requiredFields.filter(field => !headers.includes(field));
     
@@ -33,26 +99,16 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // Parse CSV rows
+    // Parse rows into places
     const places = [];
     const errors = [];
     
-    for (let i = 1; i < lines.length; i++) {
-      const values = lines[i].split(',').map(v => v.trim().replace(/^"|"$/g, ''));
-      
-      if (values.length !== headers.length) {
-        errors.push(`Row ${i + 1}: Column count mismatch`);
-        continue;
-      }
-
-      const row: any = {};
-      headers.forEach((header, index) => {
-        row[header] = values[index] || '';
-      });
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i];
 
       // Validate required fields
       if (!row.name || !row.description || !row.type || !row.latitude || !row.longitude) {
-        errors.push(`Row ${i + 1}: Missing required fields`);
+        errors.push(`Row ${i + 2}: Missing required fields`);
         continue;
       }
 
@@ -64,11 +120,19 @@ export async function POST(request: NextRequest) {
 
       try {
         if (row.audience) {
-          audience = JSON.parse(row.audience);
+          const audienceStr = String(row.audience);
+          if (audienceStr.startsWith('[') || audienceStr.startsWith('{')) {
+            audience = JSON.parse(audienceStr);
+          } else {
+            // If not JSON, try splitting by comma
+            audience = audienceStr.split(',').map((a: string) => a.trim()).filter(Boolean);
+          }
         }
       } catch (e) {
-        // If not JSON, try splitting by comma
-        audience = row.audience.split(',').map((a: string) => a.trim()).filter(Boolean);
+        // If parsing fails, try splitting by comma
+        const audienceStr = String(row.audience || '');
+        audience = audienceStr.split(',').map((a: string) => a.trim()).filter(Boolean);
+        if (audience.length === 0) audience = ['family'];
       }
 
       try {
@@ -81,11 +145,18 @@ export async function POST(request: NextRequest) {
 
       try {
         if (row.images) {
-          images = JSON.parse(row.images);
+          const imagesStr = String(row.images);
+          if (imagesStr.startsWith('[') || imagesStr.startsWith('{')) {
+            images = JSON.parse(imagesStr);
+          } else {
+            // If not JSON, try splitting by comma
+            images = imagesStr.split(',').map((img: string) => img.trim()).filter(Boolean);
+          }
         }
       } catch (e) {
-        // If not JSON, try splitting by comma
-        images = row.images.split(',').map((img: string) => img.trim()).filter(Boolean);
+        // If parsing fails, try splitting by comma
+        const imagesStr = String(row.images || '');
+        images = imagesStr.split(',').map((img: string) => img.trim()).filter(Boolean);
       }
 
       try {
@@ -97,10 +168,10 @@ export async function POST(request: NextRequest) {
       }
 
       // Validate coordinates
-      const lat = parseFloat(row.latitude);
-      const lng = parseFloat(row.longitude);
+      const lat = parseFloat(String(row.latitude));
+      const lng = parseFloat(String(row.longitude));
       if (isNaN(lat) || isNaN(lng)) {
-        errors.push(`Row ${i + 1}: Invalid latitude or longitude`);
+        errors.push(`Row ${i + 2}: Invalid latitude or longitude`);
         continue;
       }
 
@@ -129,7 +200,7 @@ export async function POST(request: NextRequest) {
 
     if (places.length === 0) {
       return NextResponse.json({ 
-        error: 'No valid places found in CSV file',
+        error: 'No valid places found in file',
         errors 
       }, { status: 400 });
     }
