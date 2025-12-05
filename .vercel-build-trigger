@@ -1,0 +1,6 @@
+# Build trigger file
+# This file forces Vercel to rebuild
+# Last updated: 2025-12-05
+BUILD_VERSION=2.0.0
+FEATURES=bulk-import-excel-support
+
