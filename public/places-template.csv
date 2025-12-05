@@ -1,4 +1,4 @@
 name,description,type,audience,environment,requiresBooking,reservationPrice,bookingUrl,bookingsCount,openingHours,crowdLevel,currentEvents,images,latitude,longitude,customFilters
-المسجد النبوي,أحد أعظم المساجد في الإسلام، يضم قبر النبي محمد ﷺ وصاحبيه,"[""family"",""seniors"",""friends""]",religious,mixed,false,,,5000000,24 ساعة,high,"[""صلاة التراويح"",""دروس دينية""]","[""https://images.unsplash.com/photo-1591604021695-0c69b7c05981?w=800""]",24.4672,39.6111,
-مسجد قباء,أول مسجد بني في الإسلام، ويُستحب زيارته والصلاة فيه,"[""family"",""seniors""]",religious,outdoor,false,,,2000000,24 ساعة,medium,"[""درس بعد الفجر""]","[""https://images.unsplash.com/photo-1564769610854-034c0e4f41f5?w=800""]",24.4393,39.6206,
-
+المسجد النبوي,أحد أعظم المساجد في الإسلام، يضم قبر النبي محمد ﷺ وصاحبيه أبو بكر وعمر رضي الله عنهما,religious,"family,seniors,friends",mixed,false,,,5000000,24 ساعة,high,"صلاة التراويح,دروس دينية","https://images.unsplash.com/photo-1591604021695-0c69b7c05981?w=800",24.4672,39.6111,
+مسجد قباء,أول مسجد بني في الإسلام، ويُستحب زيارته والصلاة فيه,religious,"family,seniors",outdoor,false,,,2000000,24 ساعة,medium,درس بعد الفجر,"https://images.unsplash.com/photo-1564769610854-034c0e4f41f5?w=800",24.4393,39.6206,
+متحف دار المدينة,متحف يعرض تاريخ المدينة المنورة وتراثها الإسلامي عبر مجموعة من المقتنيات النادرة,historical,"family,kids,friends",indoor,true,50,,450000,9 صباحاً - 12 منتصف الليل,low,معرض خاص عن السيرة النبوية,"https://images.unsplash.com/photo-1565789433644-46c5b4411f9f?w=800",24.4747,39.5834,

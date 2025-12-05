@@ -1,0 +1,94 @@
+═══════════════════════════════════════════════════════════════
+   دليل استخدام قالب استيراد الأماكن - Places Import Template Guide
+═══════════════════════════════════════════════════════════════
+
+📋 الأعمدة المطلوبة في الملف (Required Columns):
+
+┌─────────────────────────────────────────────────────────────┐
+│ أعمدة إلزامية (Required - يجب ملؤها):                        │
+├─────────────────────────────────────────────────────────────┤
+│ name          → الاسم (اسم المكان بالعربية)                 │
+│ description   → الوصف (وصف تفصيلي للمكان)                    │
+│ type          → النوع (religious/historical/entertainment) │
+│ latitude      → خط العرض (رقم مثل: 24.4672)                 │
+│ longitude     → خط الطول (رقم مثل: 39.6111)                 │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│ أعمدة اختيارية (Optional - يمكن تركها فارغة):                │
+├─────────────────────────────────────────────────────────────┤
+│ audience          → الفئة (family/kids/seniors/friends)     │
+│ environment       → البيئة (indoor/outdoor/mixed)           │
+│ requiresBooking   → يتطلب حجز (true/false)                  │
+│ reservationPrice  → سعر الحجز (رقم مثل: 50)                 │
+│ bookingUrl        → رابط الحجز (رابط خارجي)                 │
+│ bookingsCount     → عدد الحجوزات (رقم)                      │
+│ openingHours      → ساعات العمل (نص مثل: "24 ساعة")        │
+│ crowdLevel        → مستوى الازدحام (low/medium/high)        │
+│ currentEvents     → الأحداث الحالية (مفصولة بفواصل)         │
+│ images            → الصور (روابط مفصولة بفواصل)            │
+│ customFilters     → فلاتر مخصصة (يمكن تركه فارغاً)          │
+└─────────────────────────────────────────────────────────────┘
+
+📝 أمثلة على القيم (Value Examples):
+
+النوع (type):
+  • religious     = ديني
+  • historical    = تاريخي
+  • entertainment = ترفيهي
+
+الفئة (audience) - يمكن كتابة أكثر من فئة:
+  • family   = عائلي
+  • kids     = أطفال
+  • seniors  = كبار سن
+  • friends  = أصدقاء
+  • مثال: "family,kids" أو "family,seniors,friends"
+
+البيئة (environment):
+  • indoor  = داخلي
+  • outdoor = خارجي
+  • mixed   = مختلط
+
+مستوى الازدحام (crowdLevel):
+  • low    = منخفض
+  • medium = متوسط
+  • high   = عالي
+
+يتطلب حجز (requiresBooking):
+  • true  أو 1 = نعم
+  • false أو 0 = لا
+
+⚠️ ملاحظات مهمة (Important Notes):
+
+1. أسماء الأعمدة يجب أن تكون بالإنجليزية (name, type, etc.)
+2. القيم يمكن أن تكون بالعربية (الأسماء والأوصاف)
+3. الإحداثيات (latitude, longitude) يجب أن تكون أرقام
+4. القوائم (audience, images) يمكن كتابتها:
+   - مفصولة بفواصل: "family,kids"
+   - أو بصيغة JSON: ["family","kids"]
+5. القيم الفارغة يمكن تركها فارغة
+
+📤 خطوات الاستيراد (Import Steps):
+
+1. قم بتحميل القالب من صفحة /admin
+2. افتحه في Excel أو Google Sheets
+3. املأ البيانات حسب الأمثلة في القالب
+4. احفظ الملف كـ Excel (.xlsx) أو CSV (.csv)
+5. ارفع الملف من صفحة /admin
+6. انتظر حتى يكتمل الاستيراد
+
+✅ مثال كامل (Complete Example):
+
+name: المسجد النبوي
+description: أحد أعظم المساجد في الإسلام
+type: religious
+audience: family,seniors,friends
+environment: mixed
+requiresBooking: false
+latitude: 24.4672
+longitude: 39.6111
+openingHours: 24 ساعة
+crowdLevel: high
+
+═══════════════════════════════════════════════════════════════
+

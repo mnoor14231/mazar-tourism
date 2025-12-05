@@ -78,6 +78,10 @@ export default function AdminPage() {
     window.open('/places-template.csv', '_blank');
   };
 
+  const downloadInstructions = () => {
+    window.open('/places-template-arabic-guide.txt', '_blank');
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center p-4" style={{ backgroundColor: 'var(--color-background)' }}>
       <div className="card-secondary rounded-xl shadow-lg p-8 max-w-2xl w-full">
@@ -124,13 +128,22 @@ export default function AdminPage() {
             </h2>
             
             <div className="space-y-3">
-              <button
-                onClick={downloadTemplate}
-                className="w-full py-2 px-4 rounded-lg border-2 font-medium transition-colors hover:bg-gray-50"
-                style={{ borderColor: 'var(--color-border)', color: 'var(--color-text)' }}
-              >
-                📥 تحميل قالب CSV (يمكن فتحه في Excel)
-              </button>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  onClick={downloadTemplate}
+                  className="py-2 px-4 rounded-lg border-2 font-medium transition-colors hover:bg-gray-50 text-sm"
+                  style={{ borderColor: 'var(--color-border)', color: 'var(--color-text)' }}
+                >
+                  📥 تحميل القالب
+                </button>
+                <button
+                  onClick={downloadInstructions}
+                  className="py-2 px-4 rounded-lg border-2 font-medium transition-colors hover:bg-gray-50 text-sm"
+                  style={{ borderColor: 'var(--color-border)', color: 'var(--color-text)' }}
+                >
+                  📖 دليل الاستخدام
+                </button>
+              </div>
 
               <div className="relative">
                 <input
@@ -157,7 +170,7 @@ export default function AdminPage() {
               <p className="text-sm text-gray-600 text-center">
                 يمكنك رفع ملف Excel (.xlsx, .xls) أو CSV يحتوي على عدة أماكن دفعة واحدة. 
                 <br />
-                قم بتحميل القالب أولاً لمعرفة التنسيق المطلوب.
+                قم بتحميل القالب والدليل أولاً لمعرفة التنسيق المطلوب.
               </p>
             </div>
 
