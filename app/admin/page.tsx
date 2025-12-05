@@ -124,7 +124,7 @@ export default function AdminPage() {
           {/* Bulk Import Section */}
           <div className="space-y-4">
             <h2 className="text-lg font-semibold" style={{ color: 'var(--color-button-normal)' }}>
-              استيراد جماعي للأماكن
+              استيراد جماعي للأماكن (Bulk Import)
             </h2>
             
             <div className="space-y-3">
