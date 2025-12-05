@@ -1,5 +1,5 @@
 'use client';
-
+// Updated: Bulk import feature with Excel support - v2.0
 import { useState, useRef } from 'react';
 
 export default function AdminPage() {
