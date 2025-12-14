@@ -391,3 +391,43 @@ button:hover img[alt="Apple Pay"] {
   overscroll-behavior: contain;
 }
 
+/* Modal scrollbar styling */
+.modal-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #195B4A #f3f4f6;
+}
+
+.modal-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.modal-scrollbar::-webkit-scrollbar-track {
+  background: #f3f4f6;
+  border-radius: 4px;
+}
+
+.modal-scrollbar::-webkit-scrollbar-thumb {
+  background: #195B4A;
+  border-radius: 4px;
+}
+
+.modal-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #0B2F29;
+}
+
+/* Smooth scroll for entire page */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Hero background image styling - removed scale to show full image */
+
+/* Card image hover zoom effect */
+.place-card-image {
+  transition: transform 0.3s ease-in-out;
+}
+
+.place-card-image:hover {
+  transform: scale(1.1);
+}
+

@@ -15,8 +15,8 @@ export const mockPlaces: Place[] = [
     crowdLevel: 'high',
     currentEvents: ['صلاة التراويح في رمضان', 'دروس علمية يومية'],
     images: [
-      'https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?w=800',
-      'https://images.unsplash.com/photo-1580418827493-f2b22c0a76cb?w=800',
+      'https://images.unsplash.com/photo-1580418827493-f2b22c0a76cb?w=800&q=80&auto=format&fit=crop', // Prophet's Mosque
+      'https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?w=800&q=80&auto=format&fit=crop', // Mosque architecture
     ],
     latitude: 24.4672,
     longitude: 39.6111,
@@ -54,7 +54,7 @@ export const mockPlaces: Place[] = [
     crowdLevel: 'low',
     currentEvents: [],
     images: [
-      'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800',
+      'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80',
     ],
     latitude: 24.4967,
     longitude: 39.6189,
@@ -73,7 +73,7 @@ export const mockPlaces: Place[] = [
     crowdLevel: 'medium',
     currentEvents: ['معرض خاص عن الهجرة النبوية'],
     images: [
-      'https://images.unsplash.com/photo-1565099824688-e93eb20fe622?w=800',
+      'https://images.unsplash.com/photo-1565099824688-e93eb20fe622?w=800&q=80&auto=format&fit=crop', // Museum interior
     ],
     latitude: 24.4706,
     longitude: 39.6086,
@@ -92,7 +92,7 @@ export const mockPlaces: Place[] = [
     crowdLevel: 'low',
     currentEvents: ['جولات تعريفية مجانية'],
     images: [
-      'https://images.unsplash.com/photo-1542816417-0983c9c9ad53?w=800',
+      'https://images.unsplash.com/photo-1604881991720-f91add269bed?w=800&q=80', // Quran/book image
     ],
     latitude: 24.4458,
     longitude: 39.5775,
@@ -111,7 +111,7 @@ export const mockPlaces: Place[] = [
     crowdLevel: 'high',
     currentEvents: ['فعاليات ترفيهية خلال الإجازات'],
     images: [
-      'https://images.unsplash.com/photo-1588392382834-a891154bca4d?w=800',
+      'https://images.unsplash.com/photo-1588392382834-a891154bca4d?w=800&q=80',
     ],
     latitude: 24.4826,
     longitude: 39.5790,
@@ -130,7 +130,7 @@ export const mockPlaces: Place[] = [
     crowdLevel: 'high',
     currentEvents: ['تخفيضات الصيف', 'فعاليات ترفيهية نهاية الأسبوع'],
     images: [
-      'https://images.unsplash.com/photo-1519567241046-7f570eee3ce6?w=800',
+      'https://images.unsplash.com/photo-1519567241046-7f570eee3ce6?w=800&q=80&auto=format&fit=crop', // Shopping mall interior
     ],
     latitude: 24.4920,
     longitude: 39.5673,
@@ -149,7 +149,7 @@ export const mockPlaces: Place[] = [
     crowdLevel: 'medium',
     currentEvents: [],
     images: [
-      'https://images.unsplash.com/photo-1585060544812-6b45742d762f?w=800',
+      'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800&q=80', // Museum interior
     ],
     latitude: 24.4693,
     longitude: 39.6120,
@@ -187,7 +187,7 @@ export const mockPlaces: Place[] = [
     crowdLevel: 'medium',
     currentEvents: [],
     images: [
-      'https://images.unsplash.com/photo-1590608032550-01bedc145a0a?w=800',
+      'https://images.unsplash.com/photo-1590608032550-01bedc145a0a?w=800&q=80',
     ],
     latitude: 24.4675,
     longitude: 39.6145,

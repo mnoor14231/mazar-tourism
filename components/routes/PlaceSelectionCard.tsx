@@ -24,13 +24,13 @@ export default function PlaceSelectionCard({
     return labels[type] || type;
   };
 
-  const getTypeColor = (type: string) => {
+  const getTypeBgColor = (type: string) => {
     const colors: Record<string, string> = {
-      religious: 'bg-green-100 text-green-700',
-      historical: 'bg-orange-100 text-orange-700',
-      entertainment: 'bg-purple-100 text-purple-700',
+      religious: '#2D4A3E',
+      historical: '#C38822',
+      entertainment: '#6B5B95',
     };
-    return colors[type] || 'bg-gray-100 text-gray-700';
+    return colors[type] || '#6B7280';
   };
 
   const getAudienceLabel = (audience: string) => {
@@ -45,77 +45,75 @@ export default function PlaceSelectionCard({
 
   return (
     <div
-      className={`relative bg-white rounded-xl border-2 overflow-hidden transition-all ${
+      className={`relative bg-white rounded-[10px] overflow-hidden transition-all border-2 flex items-center gap-3 p-3 ${
         isSelected
-          ? 'border-primary-500 shadow-lg ring-2 ring-primary-200'
+          ? 'shadow-md'
           : 'border-gray-200 hover:border-gray-300'
-      } ${disabled && !isSelected ? 'opacity-50' : ''}`}
+      } ${disabled && !isSelected ? 'opacity-50' : 'cursor-pointer'}`}
+      style={isSelected ? { borderColor: '#C38822' } : {}}
+      onClick={!disabled || isSelected ? onToggle : undefined}
     >
-      {/* Selection Badge */}
-      {isSelected && (
-        <div className="absolute top-2 left-2 z-10 bg-primary-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">
-          ✓
+      {/* Checkbox on the left */}
+      <div className="flex-shrink-0">
+        <div
+          className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${
+            isSelected
+              ? 'border-transparent'
+              : 'border-gray-300'
+          }`}
+          style={isSelected ? { backgroundColor: '#C38822' } : {}}
+        >
+          {isSelected && (
+            <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+            </svg>
+          )}
         </div>
-      )}
-
-      {/* Image */}
-      <div className="relative h-32 bg-gray-200">
-        <img
-          src={place.images[0] || 'https://via.placeholder.com/300x150'}
-          alt={place.name}
-          className="w-full h-full object-cover"
-        />
       </div>
 
-      {/* Content */}
-      <div className="p-3">
+      {/* Content in the middle */}
+      <div className="flex-1 min-w-0">
         {/* Name */}
         <h4 className="font-bold text-gray-800 text-sm mb-2 line-clamp-1">
           {place.name}
         </h4>
 
-        {/* Badges */}
-        <div className="flex flex-wrap gap-1 mb-2">
-          <span className={`px-2 py-0.5 rounded text-xs font-medium ${getTypeColor(place.type)}`}>
-            {getTypeLabel(place.type)}
-          </span>
-          {place.requiresBooking ? (
-            <span className="px-2 py-0.5 rounded text-xs font-medium bg-orange-100 text-orange-700">
-              يتطلب حجز
+        {/* Duration and Location - Matching Figma design */}
+        <div className="flex flex-col gap-1.5">
+          {/* Duration */}
+          <div className="flex items-center gap-1.5">
+            <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span className="text-xs text-gray-600">
+              {place.openingHours?.includes('ساعة') 
+                ? place.openingHours.match(/\d+\s*ساعة/)?.[0] || '1 ساعة'
+                : '1 ساعة'}
             </span>
-          ) : (
-            <span className="px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-700">
-              بدون حجز
+          </div>
+          
+          {/* Location */}
+          <div className="flex items-center gap-1.5">
+            <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <span className="text-xs text-gray-600">
+              {place.environment === 'outdoor' ? 'خارج المدينة' : 
+               place.environment === 'indoor' ? 'وسط المدينة' : 
+               'وسط المدينة'}
             </span>
-          )}
+          </div>
         </div>
+      </div>
 
-        {/* Audience Tags */}
-        <div className="flex flex-wrap gap-1 mb-3">
-          {place.audience.slice(0, 3).map((aud) => (
-            <span
-              key={aud}
-              className="px-1.5 py-0.5 rounded text-xs bg-gray-100 text-gray-600"
-            >
-              {getAudienceLabel(aud)}
-            </span>
-          ))}
-        </div>
-
-        {/* Toggle Button */}
-        <button
-          onClick={onToggle}
-          disabled={disabled && !isSelected}
-          className={`w-full py-2 rounded-lg text-sm font-medium transition-colors ${
-            isSelected
-              ? 'bg-red-100 text-red-700 hover:bg-red-200'
-              : disabled
-              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-              : 'bg-primary-100 text-primary-700 hover:bg-primary-200'
-          }`}
-        >
-          {isSelected ? 'إزالة من المسار' : 'إضافة للمسار'}
-        </button>
+      {/* Image on the right */}
+      <div className="flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden bg-gray-200">
+        <img
+          src={place.images[0] || 'https://via.placeholder.com/300x150'}
+          alt={place.name}
+          className="w-full h-full object-cover"
+        />
       </div>
     </div>
   );

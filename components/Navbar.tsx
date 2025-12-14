@@ -22,10 +22,30 @@ export default function Navbar() {
   };
 
   const navItems = [
-    { href: '/reference', label: 'المرجع' },
-    { href: '/routes', label: 'المسار' },
-    { href: '/experiences', label: 'التجارب' },
+    { href: '/', label: 'الرئيسية', sectionId: 'home' },
+    { href: '/reference', label: 'المرجع', sectionId: 'reference' },
+    { href: '/routes', label: 'المسار', sectionId: 'planner' },
+    { href: '/experiences', label: 'التجارب', sectionId: 'experiences' },
+    { href: '/about', label: 'عن المدينة', sectionId: 'about' },
   ];
+
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string, sectionId?: string) => {
+    // If on landing page and sectionId exists, scroll to section instead of navigating
+    if (isLandingPage && sectionId && sectionId !== 'home') {
+      e.preventDefault();
+      const element = document.getElementById(sectionId);
+      if (element) {
+        const offset = 80; // navbar height
+        const elementPosition = element.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - offset;
+        window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+      }
+    } else if (isLandingPage && sectionId === 'home') {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    // Otherwise, let the Link component handle navigation normally
+  };
 
   const getRoleLabel = () => {
     if (user?.role === 'manager') return 'مدير';
@@ -44,7 +64,7 @@ export default function Navbar() {
     : 'shadow-lg';
 
   return (
-    <nav className={`${navBgClass} sticky top-0 z-50`} style={{ backgroundColor: isLandingPage ? 'rgba(250, 248, 245, 0.95)' : 'var(--color-secondary)' }}>
+    <nav className={`${navBgClass} sticky top-0 z-50`} style={{ backgroundColor: '#FAF8F3' }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
@@ -62,36 +82,41 @@ export default function Navbar() {
 
           {/* Navigation Links */}
           <div className="hidden sm:flex items-center gap-1">
-            {navItems.map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={`px-4 py-2 rounded-lg font-medium transition-all ${
-                      pathname === item.href
-                        ? 'text-white'
-                        : 'hover:opacity-80'
-                    }`}
-                    style={pathname === item.href 
-                      ? { backgroundColor: 'var(--color-button-normal)' } 
-                      : { color: 'var(--color-foreground)' }
-                    }
-                  >
-                    {item.label}
-                  </Link>
-            ))}
+            {navItems.map((item) => {
+              const isActive = pathname === item.href || (isLandingPage && item.sectionId === 'home');
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={(e) => handleNavClick(e, item.href, item.sectionId)}
+                  className="px-4 py-2 rounded-lg font-medium transition-all relative group"
+                  style={{ color: '#1A1A1A' }}
+                >
+                  {item.label}
+                  {/* Hover underline - shows on hover for all links */}
+                  <span 
+                    className="absolute bottom-0 left-0 right-0 h-0.5 transition-all duration-300 origin-center scale-x-0 group-hover:scale-x-100" 
+                    style={{ backgroundColor: '#C38822' }}
+                  ></span>
+                  {/* Active underline - shows when page is active */}
+                  {isActive && (
+                    <span 
+                      className="absolute bottom-0 left-0 right-0 h-0.5" 
+                      style={{ backgroundColor: '#C38822' }}
+                    ></span>
+                  )}
+                </Link>
+              );
+            })}
           </div>
 
           {/* Right Side */}
           <div className="flex items-center gap-3">
-              {/* Search Icon */}
-              <button className="hover:opacity-70 transition-colors p-2 hidden sm:block" style={{ color: 'var(--color-foreground)' }}>
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </button>
-
               {/* Language Toggle */}
-              <button className="hidden sm:flex items-center gap-1 hover:opacity-70 transition-colors text-sm font-medium" style={{ color: 'var(--color-foreground)' }}>
+              <button 
+                className="hidden sm:flex items-center gap-1.5 hover:opacity-90 transition-colors text-sm font-medium px-3 py-2 rounded-lg"
+                style={{ backgroundColor: '#2D4A3E', color: 'white' }}
+              >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
                 </svg>
@@ -138,12 +163,12 @@ export default function Navbar() {
             ) : (
               <button
                 onClick={handleLogin}
-                className="bg-[#9D7D4E] hover:bg-[#694F2E] text-white px-5 py-2 rounded-lg transition-colors text-sm font-medium flex items-center gap-2"
+                className="bg-white hover:bg-gray-50 text-gray-800 px-5 py-2 rounded-lg transition-colors text-sm font-medium flex items-center gap-2 border border-gray-200"
               >
+                <span>تسجيل الدخول</span>
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
-                تسجيل الدخول
               </button>
             )}
           </div>
@@ -151,23 +176,32 @@ export default function Navbar() {
 
               {/* Mobile Navigation */}
               <div className="sm:hidden pb-3 flex justify-center gap-2">
-                {navItems.map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                      pathname === item.href
-                        ? 'text-white'
-                        : 'hover:opacity-80'
-                    }`}
-                    style={pathname === item.href 
-                      ? { backgroundColor: 'var(--color-button-normal)' } 
-                      : { color: 'var(--color-foreground)' }
-                    }
-                  >
-                    {item.label}
-                  </Link>
-                ))}
+                {navItems.map((item) => {
+                  const isActive = pathname === item.href || (isLandingPage && item.sectionId === 'home');
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={(e) => handleNavClick(e, item.href, item.sectionId)}
+                      className="px-3 py-1.5 rounded-lg text-sm font-medium transition-all relative group"
+                      style={{ color: '#1A1A1A' }}
+                    >
+                      {item.label}
+                      {/* Hover underline - shows on hover for all links */}
+                      <span 
+                        className="absolute bottom-0 left-0 right-0 h-0.5 transition-all duration-300 origin-center scale-x-0 group-hover:scale-x-100" 
+                        style={{ backgroundColor: '#C38822' }}
+                      ></span>
+                      {/* Active underline - shows when page is active */}
+                      {isActive && (
+                        <span 
+                          className="absolute bottom-0 left-0 right-0 h-0.5" 
+                          style={{ backgroundColor: '#C38822' }}
+                        ></span>
+                      )}
+                    </Link>
+                  );
+                })}
               </div>
       </div>
     </nav>

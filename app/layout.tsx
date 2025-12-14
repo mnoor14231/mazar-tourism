@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import Navbar from '@/components/Navbar'
+import Footer from '@/components/Footer'
 import Providers from './providers'
 import PWAInstallPrompt from '@/components/PWAInstall'
 import Script from 'next/script'
@@ -165,6 +166,7 @@ export default function RootLayout({
           <main className="min-h-screen">
             {children}
           </main>
+          <Footer />
           <PWAInstallPrompt />
         </Providers>
         

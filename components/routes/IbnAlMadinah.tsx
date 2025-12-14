@@ -755,25 +755,29 @@ export default function IbnAlMadinah({ places, onRouteGenerated }: IbnAlMadinahP
   // If user is not logged in, show login prompt
   if (!user) {
     return (
-      <div className="flex flex-col h-[600px] bg-white rounded-xl shadow-lg overflow-hidden">
-        {/* Chat Header */}
-        <div className="bg-gradient-to-l from-primary-600 to-primary-700 text-white p-4">
+      <div className="flex flex-col h-[600px] bg-white rounded-[10px] shadow-lg overflow-hidden border border-gray-100">
+        {/* Chat Header - Figma golden color */}
+        <div className="text-white p-4" style={{ backgroundColor: '#C38822' }}>
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-2xl">
-              🧔
+            <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center">
+              <svg className="w-7 h-7" style={{ color: '#C38822' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+              </svg>
             </div>
             <div>
               <h3 className="font-bold text-lg">ابن المدينة</h3>
-              <p className="text-sm text-primary-100">مساعدك الذكي لاكتشاف المدينة</p>
+              <p className="text-sm text-white/80">مساعدك الذكي لاكتشاف المدينة</p>
             </div>
           </div>
         </div>
 
         {/* Login Prompt */}
-        <div className="flex-1 flex items-center justify-center p-8 bg-gradient-to-br from-gray-50 to-gray-100">
+        <div className="flex-1 flex items-center justify-center p-8" style={{ backgroundColor: 'var(--color-background)' }}>
           <div className="text-center max-w-md">
-            <div className="w-24 h-24 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <span className="text-5xl">🔒</span>
+            <div className="w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6" style={{ backgroundColor: 'rgba(195, 136, 34, 0.1)' }}>
+              <svg className="w-12 h-12" style={{ color: '#C38822' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
             </div>
             <h3 className="text-2xl font-bold text-gray-800 mb-3">
               تسجيل الدخول مطلوب
@@ -783,9 +787,12 @@ export default function IbnAlMadinah({ places, onRouteGenerated }: IbnAlMadinahP
             </p>
             <button
               onClick={handleLogin}
-              className="bg-gradient-to-l from-primary-600 to-primary-700 text-white px-8 py-4 rounded-xl font-bold text-lg hover:from-primary-700 hover:to-primary-800 transition-all flex items-center justify-center gap-2 mx-auto shadow-lg"
+              className="text-white px-8 py-4 rounded-[10px] font-bold text-lg transition-all flex items-center justify-center gap-2 mx-auto shadow-lg hover:opacity-90"
+              style={{ backgroundColor: '#C38822' }}
             >
-              <span>🔑</span>
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+              </svg>
               <span>تسجيل الدخول</span>
             </button>
             <p className="text-sm text-gray-500 mt-4">
@@ -799,7 +806,7 @@ export default function IbnAlMadinah({ places, onRouteGenerated }: IbnAlMadinahP
 
   return (
     <div 
-      className="flex flex-col h-[600px] bg-white rounded-xl shadow-lg overflow-hidden"
+      className="flex flex-col h-[600px] bg-white rounded-[10px] shadow-lg overflow-hidden border border-gray-100"
       style={{
         position: 'relative',
         isolation: 'isolate'
@@ -813,15 +820,17 @@ export default function IbnAlMadinah({ places, onRouteGenerated }: IbnAlMadinahP
         e.stopPropagation();
       }}
     >
-      {/* Chat Header */}
-      <div className="bg-gradient-to-l from-primary-600 to-primary-700 text-white p-4">
+      {/* Chat Header - Figma golden color */}
+      <div className="text-white p-4" style={{ backgroundColor: '#C38822' }}>
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-2xl">
-            🧔
+          <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center">
+            <svg className="w-7 h-7" style={{ color: '#C38822' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+            </svg>
           </div>
           <div>
             <h3 className="font-bold text-lg">ابن المدينة</h3>
-            <p className="text-sm text-primary-100">مساعدك الذكي لاكتشاف المدينة</p>
+            <p className="text-sm text-white/80">مساعدك الذكي لاكتشاف المدينة</p>
           </div>
         </div>
       </div>
@@ -829,29 +838,27 @@ export default function IbnAlMadinah({ places, onRouteGenerated }: IbnAlMadinahP
       {/* Messages Area */}
       <div 
         id="chat-messages-container"
-        className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50"
+        className="flex-1 overflow-y-auto p-4 space-y-4"
         style={{ 
-          overscrollBehavior: 'contain', // Prevent scroll chaining to parent
+          backgroundColor: 'var(--color-background)',
+          overscrollBehavior: 'contain',
           overscrollBehaviorY: 'contain',
           overscrollBehaviorX: 'contain',
           scrollBehavior: 'smooth',
           position: 'relative',
-          isolation: 'isolate' // Create new stacking context
+          isolation: 'isolate'
         }}
         onScroll={(e) => {
-          // Prevent scroll event from bubbling to parent
           e.stopPropagation();
           if (e.nativeEvent) {
             e.nativeEvent.stopImmediatePropagation();
           }
         }}
         onWheel={(e) => {
-          // Prevent wheel event from bubbling to parent only if scrolling within container
           const container = e.currentTarget;
           const isAtTop = container.scrollTop === 0;
           const isAtBottom = container.scrollHeight - container.scrollTop === container.clientHeight;
           
-          // Only stop propagation if we're at boundaries and trying to scroll further
           if ((isAtTop && e.deltaY < 0) || (isAtBottom && e.deltaY > 0)) {
             e.stopPropagation();
           }
@@ -865,13 +872,16 @@ export default function IbnAlMadinah({ places, onRouteGenerated }: IbnAlMadinahP
             <div
               className={`max-w-[85%] rounded-2xl px-4 py-3 ${
                 message.role === 'user'
-                  ? 'bg-primary-600 text-white rounded-br-sm'
+                  ? 'text-white rounded-br-sm'
                   : 'bg-white text-gray-800 shadow-sm border border-gray-100 rounded-bl-sm'
               }`}
+              style={message.role === 'user' ? { backgroundColor: '#C38822' } : {}}
             >
               {message.role === 'assistant' && (
-                <div className="flex items-center gap-2 mb-1 text-xs text-gray-500">
-                  <span>🧔</span>
+                <div className="flex items-center gap-2 mb-1 text-xs" style={{ color: '#C38822' }}>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                  </svg>
                   <span>ابن المدينة</span>
                 </div>
               )}
@@ -880,14 +890,14 @@ export default function IbnAlMadinah({ places, onRouteGenerated }: IbnAlMadinahP
           </div>
         ))}
 
-        {/* Typing Indicator - Always on right (from bot) */}
+        {/* Typing Indicator */}
         {isTyping && (
           <div className="flex justify-end animate-fade-in">
             <div className="bg-white rounded-2xl px-4 py-3 shadow-sm border border-gray-100 rounded-bl-sm">
               <div className="flex items-center gap-1.5">
-                <div className="w-2 h-2 bg-primary-600 rounded-full animate-bounce" style={{ animationDelay: '0ms', animationDuration: '1.4s' }}></div>
-                <div className="w-2 h-2 bg-primary-600 rounded-full animate-bounce" style={{ animationDelay: '200ms', animationDuration: '1.4s' }}></div>
-                <div className="w-2 h-2 bg-primary-600 rounded-full animate-bounce" style={{ animationDelay: '400ms', animationDuration: '1.4s' }}></div>
+                <div className="w-2 h-2 rounded-full animate-bounce" style={{ backgroundColor: '#C38822', animationDelay: '0ms', animationDuration: '1.4s' }}></div>
+                <div className="w-2 h-2 rounded-full animate-bounce" style={{ backgroundColor: '#C38822', animationDelay: '200ms', animationDuration: '1.4s' }}></div>
+                <div className="w-2 h-2 rounded-full animate-bounce" style={{ backgroundColor: '#C38822', animationDelay: '400ms', animationDuration: '1.4s' }}></div>
               </div>
             </div>
           </div>
@@ -901,9 +911,12 @@ export default function IbnAlMadinah({ places, onRouteGenerated }: IbnAlMadinahP
         <div className="px-4 py-2 bg-white border-t">
           <button
             onClick={handleGenerateRoute}
-            className="w-full bg-gradient-to-l from-green-500 to-green-600 text-white py-3 rounded-xl font-bold text-lg hover:from-green-600 hover:to-green-700 transition-all flex items-center justify-center gap-2"
+            className="w-full text-white py-3 rounded-[10px] font-bold text-lg transition-all flex items-center justify-center gap-2 hover:opacity-90"
+            style={{ backgroundColor: '#2D4A3E' }}
           >
-            <span>✨</span>
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+            </svg>
             إنشاء مسار مقترح
           </button>
         </div>
@@ -918,10 +931,8 @@ export default function IbnAlMadinah({ places, onRouteGenerated }: IbnAlMadinahP
             value={input}
             onChange={(e) => {
               setInput(e.target.value);
-              // Allow normal input - don't prevent propagation
             }}
             onKeyDown={(e) => {
-              // Prevent page scroll on Enter only
               if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
                 e.stopPropagation();
@@ -930,23 +941,17 @@ export default function IbnAlMadinah({ places, onRouteGenerated }: IbnAlMadinahP
                 }
                 return false;
               }
-              // Allow other keys to work normally
             }}
             placeholder="اكتب ردك هنا..."
-            className="flex-1 input-field focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+            className="flex-1 px-4 py-2.5 rounded-[10px] border border-gray-200 focus:outline-none focus:ring-2 focus:border-transparent"
+            style={{ ['--tw-ring-color' as any]: '#C38822' }}
             disabled={isTyping}
             autoFocus={true}
             onFocus={(e) => {
-              // Prevent page scroll when input is focused
               e.stopPropagation();
-              // Don't prevent focus on input - allow user to type
             }}
             onBlur={(e) => {
               e.stopPropagation();
-            }}
-            onClick={(e) => {
-              // Allow click to focus input normally
-              // Only prevent scroll propagation, not the click itself
             }}
           />
           <button
@@ -957,7 +962,8 @@ export default function IbnAlMadinah({ places, onRouteGenerated }: IbnAlMadinahP
               handleSend();
             }}
             disabled={!input.trim() || isTyping}
-            className="bg-primary-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="text-white px-6 py-2 rounded-[10px] font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            style={{ backgroundColor: '#C38822' }}
           >
             إرسال
           </button>

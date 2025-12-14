@@ -1,7 +1,6 @@
 'use client';
 
 import { Place } from '@/types';
-import Image from 'next/image';
 import { useState } from 'react';
 
 interface JourneyTimelineProps {
@@ -30,17 +29,6 @@ export default function JourneyTimeline({ places, startLocation, onPlaceClick, o
     setSelectedPlace(null);
   };
 
-  const getTypeIcon = (type: string) => {
-    const icons: Record<string, string> = {
-      religious: '🕌',
-      historical: '🏛️',
-      entertainment: '🎭',
-      shopping: '🛍️',
-      restaurant: '🍽️',
-    };
-    return icons[type] || '📍';
-  };
-
   const getTypeLabel = (type: string) => {
     const labels: Record<string, string> = {
       religious: 'ديني',
@@ -52,51 +40,68 @@ export default function JourneyTimeline({ places, startLocation, onPlaceClick, o
     return labels[type] || type;
   };
 
+  const getTypeBgColor = (type: string) => {
+    const colors: Record<string, string> = {
+      religious: '#2D4A3E',
+      historical: '#C38822',
+      entertainment: '#6B5B95',
+      shopping: '#E74C3C',
+      restaurant: '#3498DB',
+    };
+    return colors[type] || '#6B7280';
+  };
+
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-6 mb-6 border border-gray-100 overflow-hidden">
-      <div className="flex items-center gap-2 mb-6">
-        <div className="text-2xl">🗺️</div>
-        <h3 className="text-xl font-bold text-gray-800">مسار رحلتك</h3>
-        <div className="flex-1 h-0.5 bg-gradient-to-r from-[#195B4A] to-transparent"></div>
+    <div className="bg-white rounded-[10px] shadow-md p-4 border border-gray-100 overflow-hidden">
+      <div className="flex items-center gap-2 mb-4">
+        <svg className="w-5 h-5" style={{ color: '#2D4A3E' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+        </svg>
+        <h3 className="text-lg font-bold text-gray-800">مسار رحلتك</h3>
+        <div className="flex-1 h-0.5" style={{ background: 'linear-gradient(to left, transparent, #2D4A3E)' }}></div>
       </div>
 
-      {/* Timeline Container */}
+      {/* Timeline Container - Horizontal Layout */}
       <div className="relative">
-        {/* Horizontal Scroll Container */}
-        <div className="overflow-x-auto pb-4 scrollbar-thin">
+        <div className="overflow-x-auto pb-2 scrollbar-thin">
           <div className="flex items-center gap-0 min-w-max px-2">
             {/* Start Location */}
             {startLocation && (
               <>
-                <div className="flex flex-col items-center journey-timeline-item animate-fade-in">
+                <div className="flex flex-col items-center">
                   <div className="relative group">
-                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#9D7D4E] to-[#B69D6D] flex items-center justify-center text-2xl shadow-lg transition-all duration-300 hover:scale-110 hover:shadow-xl">
-                      🚩
+                    <div className="w-14 h-14 rounded-full flex items-center justify-center shadow-md transition-all duration-300 hover:scale-110" style={{ backgroundColor: '#C38822' }}>
+                      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
                     </div>
-                    <div className="absolute -top-1 -right-1 w-6 h-6 bg-white rounded-full flex items-center justify-center text-xs font-bold text-[#9D7D4E] shadow-md border-2 border-[#B69D6D]">
+                    <div className="absolute -top-1 -right-1 w-5 h-5 bg-white rounded-full flex items-center justify-center text-xs font-bold shadow-sm" style={{ color: '#C38822', border: '2px solid #C38822' }}>
                       0
                     </div>
                   </div>
-                  <p className="mt-3 text-sm font-semibold text-gray-800 text-center max-w-[100px] line-clamp-2">
+                  <p className="mt-2 text-xs font-semibold text-gray-700 text-center max-w-[80px] line-clamp-2">
                     {startLocation.label || 'نقطة البداية'}
                   </p>
-                  <p className="text-xs text-gray-500">البداية</p>
+                  <span className="text-xs px-2 py-0.5 rounded-full mt-1" style={{ backgroundColor: 'rgba(195, 136, 34, 0.1)', color: '#C38822' }}>
+                    البداية
+                  </span>
                 </div>
 
                 {/* Connecting Line */}
-                <div className="flex-shrink-0 h-0.5 w-12 bg-gradient-to-r from-[#B69D6D] via-[#307C5F] to-[#195B4A] mx-2"></div>
+                <div className="flex-shrink-0 h-0.5 w-10 mx-2" style={{ background: 'linear-gradient(to left, #2D4A3E, #C38822)' }}></div>
               </>
             )}
 
             {/* Places */}
             {places.map((place, index) => (
               <div key={place.id} className="flex items-center">
-                <div className="flex flex-col items-center journey-timeline-item animate-fade-in" style={{ animationDelay: `${(index + 1) * 100}ms` }}>
+                <div className="flex flex-col items-center">
                   <div className="relative group">
-                    {/* Place Image/Icon - Now Clickable */}
                     <button
                       onClick={() => handlePlaceClick(place)}
-                      className="w-20 h-20 rounded-full overflow-hidden bg-gradient-to-br from-[#195B4A] to-[#307C5F] flex items-center justify-center shadow-lg transition-all duration-300 hover:scale-110 hover:shadow-2xl border-4 border-white cursor-pointer focus:outline-none focus:ring-4 focus:ring-[#B69D6D]/50"
+                      className="w-14 h-14 rounded-full overflow-hidden flex items-center justify-center shadow-md transition-all duration-300 hover:scale-110 border-2 border-white cursor-pointer focus:outline-none"
+                      style={{ backgroundColor: getTypeBgColor(place.type) }}
                     >
                       {place.images && place.images[0] ? (
                         <img
@@ -105,66 +110,66 @@ export default function JourneyTimeline({ places, startLocation, onPlaceClick, o
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <span className="text-3xl">{getTypeIcon(place.type)}</span>
+                        <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        </svg>
                       )}
                     </button>
                     
                     {/* Order Number Badge */}
-                    <div className="absolute -top-1 -right-1 w-8 h-8 bg-white rounded-full flex items-center justify-center text-sm font-bold text-[#195B4A] shadow-md border-2 border-[#307C5F] pointer-events-none">
+                    <div className="absolute -top-1 -right-1 w-5 h-5 bg-white rounded-full flex items-center justify-center text-xs font-bold shadow-sm pointer-events-none" style={{ color: '#2D4A3E', border: '2px solid #2D4A3E' }}>
                       {index + 1}
                     </div>
 
-                    {/* Booking Required Badge - Clickable */}
+                    {/* Booking Required Badge */}
                     {place.requiresBooking && (
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           handleReservation(place);
                         }}
-                        className="absolute -bottom-1 -left-1 w-7 h-7 bg-red-500 rounded-full flex items-center justify-center shadow-lg border-2 border-white hover:bg-red-600 hover:scale-110 transition-all cursor-pointer z-10"
+                        className="absolute -bottom-1 -left-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center shadow-md border border-white hover:bg-red-600 hover:scale-110 transition-all cursor-pointer z-10"
                         title="احجز الآن"
                       >
-                        <span className="text-xs">📅</span>
+                        <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
                       </button>
                     )}
 
-                    {/* Enhanced Hover Tooltip */}
+                    {/* Hover Tooltip */}
                     <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-20">
-                      <div className="bg-gradient-to-br from-gray-900 to-gray-800 text-white text-xs rounded-xl py-3 px-4 whitespace-nowrap shadow-2xl border border-gray-700">
+                      <div className="bg-gray-800 text-white text-xs rounded-lg py-2 px-3 whitespace-nowrap shadow-lg">
                         <p className="font-bold text-sm mb-1">{place.name}</p>
-                        <p className="text-gray-300 mb-1">{getTypeLabel(place.type)}</p>
                         {place.requiresBooking && (
-                          <p className="text-red-300 flex items-center gap-1">
-                            <span>📅</span>
-                            <span>يتطلب حجز مسبق</span>
-                          </p>
+                          <p className="text-red-300 text-xs">يتطلب حجز مسبق</p>
                         )}
-                        <p className="text-[#B69D6D] text-xs mt-2 font-medium">اضغط للتفاصيل</p>
                       </div>
-                      <div className="w-2 h-2 bg-gray-900 transform rotate-45 absolute top-full left-1/2 -translate-x-1/2 -mt-1"></div>
                     </div>
                   </div>
                   
                   <button
                     onClick={() => handlePlaceClick(place)}
-                    className="mt-3 text-sm font-semibold text-gray-800 text-center max-w-[120px] line-clamp-2 hover:text-[#195B4A] transition-colors"
+                    className="mt-2 text-xs font-semibold text-gray-700 text-center max-w-[80px] line-clamp-2 hover:opacity-80 transition-colors"
                   >
                     {place.name}
                   </button>
-                  <div className="flex items-center gap-1 mt-1">
-                    <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ backgroundColor: 'rgba(25, 91, 74, 0.1)', color: 'var(--color-button-normal)' }}>
-                      {getTypeLabel(place.type)}
-                    </span>
-                  </div>
+                  {/* Category Badge instead of location */}
+                  <span 
+                    className="text-xs px-2 py-0.5 rounded-full mt-1 text-white font-medium"
+                    style={{ backgroundColor: getTypeBgColor(place.type) }}
+                  >
+                    {getTypeLabel(place.type)}
+                  </span>
                 </div>
 
                 {/* Connecting Line */}
                 {index < places.length - 1 && (
-                  <div className="flex-shrink-0 relative mx-3">
-                    <div className="h-0.5 w-12 bg-gradient-to-r from-[#195B4A] to-[#307C5F]"></div>
+                  <div className="flex-shrink-0 relative mx-2">
+                    <div className="h-0.5 w-10" style={{ backgroundColor: '#2D4A3E' }}></div>
                     <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                      <svg width="16" height="16" viewBox="0 0 16 16" className="text-[#307C5F]">
-                        <path d="M8 0 L12 8 L8 7 L4 8 Z" fill="currentColor" />
+                      <svg width="12" height="12" viewBox="0 0 12 12" style={{ color: '#2D4A3E' }}>
+                        <path d="M6 0 L10 6 L6 5 L2 6 Z" fill="currentColor" />
                       </svg>
                     </div>
                   </div>
@@ -175,33 +180,15 @@ export default function JourneyTimeline({ places, startLocation, onPlaceClick, o
         </div>
 
         {/* Scroll Hint */}
-        {places.length > 3 && (
-          <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-transparent to-white/50 pointer-events-none"></div>
-        )}
-      </div>
-
-      {/* Summary Stats */}
-      <div className="mt-6 pt-4 border-t border-gray-100 flex items-center justify-center gap-6 flex-wrap">
-        <div className="flex items-center gap-2 text-sm">
-          <span className="text-2xl">📍</span>
-          <span className="text-gray-600">عدد الأماكن:</span>
-          <span className="font-bold text-[#195B4A]">{places.length}</span>
-        </div>
-        {places.some(p => p.requiresBooking) && (
-          <div className="flex items-center gap-2 text-sm">
-            <span className="text-2xl">📅</span>
-            <span className="text-gray-600">يتطلب حجز:</span>
-            <span className="font-bold text-red-600">
-              {places.filter(p => p.requiresBooking).length}
-            </span>
-          </div>
+        {places.length > 4 && (
+          <div className="absolute left-0 top-0 bottom-0 w-6 bg-gradient-to-r from-white to-transparent pointer-events-none"></div>
         )}
       </div>
 
       {/* Interactive Place Details Card */}
       {selectedPlace && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden animate-bounce-in">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-white rounded-[10px] shadow-2xl max-w-md w-full overflow-hidden">
             {/* Image Header */}
             <div className="relative h-48">
               {selectedPlace.images && selectedPlace.images[0] ? (
@@ -211,8 +198,10 @@ export default function JourneyTimeline({ places, startLocation, onPlaceClick, o
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <div className="w-full h-full bg-gradient-to-br from-[#195B4A] to-[#307C5F] flex items-center justify-center">
-                  <span className="text-6xl">{getTypeIcon(selectedPlace.type)}</span>
+                <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: getTypeBgColor(selectedPlace.type) }}>
+                  <svg className="w-16 h-16 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  </svg>
                 </div>
               )}
               <button
@@ -225,54 +214,65 @@ export default function JourneyTimeline({ places, startLocation, onPlaceClick, o
               </button>
               {selectedPlace.requiresBooking && (
                 <div className="absolute top-3 left-3 bg-red-500 text-white px-3 py-1.5 rounded-full text-sm font-bold shadow-lg flex items-center gap-1">
-                  <span>📅</span>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
                   <span>يتطلب حجز</span>
                 </div>
               )}
             </div>
 
             {/* Content */}
-            <div className="p-6">
-              <h3 className="text-2xl font-bold text-gray-800 mb-2">{selectedPlace.name}</h3>
+            <div className="p-5">
+              <h3 className="text-xl font-bold text-gray-800 mb-2">{selectedPlace.name}</h3>
               
               {/* Badges */}
               <div className="flex flex-wrap gap-2 mb-4">
-                <span className="px-3 py-1 rounded-full text-sm font-semibold" style={{ backgroundColor: 'rgba(25, 91, 74, 0.1)', color: 'var(--color-button-normal)' }}>
+                <span 
+                  className="px-3 py-1 rounded-full text-sm font-semibold text-white"
+                  style={{ backgroundColor: getTypeBgColor(selectedPlace.type) }}
+                >
                   {getTypeLabel(selectedPlace.type)}
                 </span>
                 {selectedPlace.environment && (
-                  <span className="px-3 py-1 bg-[#307C5F]/10 text-[#307C5F] rounded-full text-sm font-semibold">
-                    {selectedPlace.environment === 'indoor' ? '🏠 داخلي' : selectedPlace.environment === 'outdoor' ? '🌳 خارجي' : '🏠🌳 مختلط'}
+                  <span className="px-3 py-1 rounded-full text-sm font-semibold" style={{ backgroundColor: 'rgba(45, 74, 62, 0.1)', color: '#2D4A3E' }}>
+                    {selectedPlace.environment === 'indoor' ? 'داخلي' : selectedPlace.environment === 'outdoor' ? 'خارجي' : 'مختلط'}
                   </span>
                 )}
               </div>
 
               {/* Description */}
-              <p className="text-gray-600 mb-4 leading-relaxed">
+              <p className="text-gray-600 mb-4 leading-relaxed text-sm">
                 {selectedPlace.description}
               </p>
 
               {/* Info */}
-              <div className="space-y-2 mb-6">
+              <div className="space-y-2 mb-5">
                 {selectedPlace.openingHours && (
                   <div className="flex items-center gap-2 text-sm">
-                    <span className="text-xl">⏰</span>
+                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
                     <span className="text-gray-600">ساعات العمل:</span>
                     <span className="font-semibold text-gray-800">{selectedPlace.openingHours}</span>
                   </div>
                 )}
                 {selectedPlace.bookingsCount > 0 && (
                   <div className="flex items-center gap-2 text-sm">
-                    <span className="text-xl">👥</span>
+                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
                     <span className="text-gray-600">عدد الزوار:</span>
-                    <span className="font-semibold text-[#195B4A]">{selectedPlace.bookingsCount.toLocaleString('ar-SA')}</span>
+                    <span className="font-semibold" style={{ color: '#2D4A3E' }}>{selectedPlace.bookingsCount.toLocaleString('ar-SA')}</span>
                   </div>
                 )}
                 {selectedPlace.reservationPrice && selectedPlace.reservationPrice > 0 && (
                   <div className="flex items-center gap-2 text-sm">
-                    <span className="text-xl">💰</span>
+                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
                     <span className="text-gray-600">السعر:</span>
-                    <span className="font-semibold text-[#9D7D4E]">{selectedPlace.reservationPrice} ريال</span>
+                    <span className="font-semibold" style={{ color: '#C38822' }}>{selectedPlace.reservationPrice} ريال</span>
                   </div>
                 )}
               </div>
@@ -282,17 +282,22 @@ export default function JourneyTimeline({ places, startLocation, onPlaceClick, o
                 {selectedPlace.requiresBooking && onReservation && (
                   <button
                     onClick={() => handleReservation(selectedPlace)}
-                    className="flex-1 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white py-3 px-4 rounded-xl font-bold transition-all hover:scale-105 shadow-lg flex items-center justify-center gap-2"
+                    className="flex-1 bg-red-500 hover:bg-red-600 text-white py-3 px-4 rounded-[10px] font-bold transition-all flex items-center justify-center gap-2"
                   >
-                    <span>📅</span>
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
                     <span>احجز الآن</span>
                   </button>
                 )}
                 <button
                   onClick={() => setSelectedPlace(null)}
-                  className={`${selectedPlace.requiresBooking ? 'flex-1' : 'w-full'} bg-gradient-to-r from-[#195B4A] to-[#307C5F] hover:from-[#307C5F] hover:to-[#195B4A] text-white py-3 px-4 rounded-xl font-bold transition-all hover:scale-105 shadow-lg flex items-center justify-center gap-2`}
+                  className={`${selectedPlace.requiresBooking ? 'flex-1' : 'w-full'} text-white py-3 px-4 rounded-[10px] font-bold transition-all flex items-center justify-center gap-2`}
+                  style={{ backgroundColor: '#2D4A3E' }}
                 >
-                  <span>✓</span>
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
                   <span>تم</span>
                 </button>
               </div>
